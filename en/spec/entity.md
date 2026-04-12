@@ -74,7 +74,7 @@ Describes **who published** the content.
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `id` | `string` | Yes | Globally unique URN (`urn:aidp:entity:{slug}`) or DID (see [4.4](/spec/verification#44)) |
+| `id` | `string` | Yes | Globally unique URN (`urn:aidp:entity:{slug}`) or DID (see [4.4](/en/spec/verification#44)) |
 | `type` | `enum` | Yes | `organization` · `business` · `government` · `academic` · `media` · `individual` · `bot` |
 | `name` | `LocalizedString` | Yes | Display name, indexed by locale |
 | `description` | `LocalizedString` | No | Brief description |

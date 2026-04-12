@@ -30,6 +30,6 @@ If you only need AI Agents to be able to read your data and do not need to manag
 
 ## Detailed Documentation
 
-- [MCP Integration](/developer/mcp-integration) -- MCP endpoint, Resource mode, Tool mode
-- [REST API Integration](/developer/rest-api) -- Authentication, CRUD operations, public API
-- [Static File Deployment](/developer/static-file) -- File setup, web server configuration, DNS verification
+- [MCP Integration](/en/developer/mcp-integration) -- MCP endpoint, Resource mode, Tool mode
+- [REST API Integration](/en/developer/rest-api) -- Authentication, CRUD operations, public API
+- [Static File Deployment](/en/developer/static-file) -- File setup, web server configuration, DNS verification

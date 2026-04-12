@@ -8,7 +8,7 @@ Place the AIDP JSON at your website root: `/.well-known/aidp.json`
 
 ## Deployment Steps
 
-1. Create the AIDP JSON file (refer to the [Full Example](/spec/full-example))
+1. Create the AIDP JSON file (refer to the [Full Example](/en/spec/full-example))
 2. Place it at `/.well-known/aidp.json`
 3. Configure the correct HTTP headers:
    - `Content-Type: application/aidp+json`
@@ -55,4 +55,4 @@ Static file deployment has the following limitations:
 - Content must be updated manually
 - Cannot use the redirect proxy for link click tracking
 
-If you need these features, consider using the [SpeakSpec Platform](/guide/speakspec-guide) or the [REST API](/developer/rest-api).
+If you need these features, consider using the [SpeakSpec Platform](/en/guide/speakspec-guide) or the [REST API](/en/developer/rest-api).

@@ -142,7 +142,7 @@ The `verification.credential` field carries a W3C Verifiable Credential that cry
 
 **Behavioral Rules:**
 
-1. `credential` is optional in v0.3. When absent or `null`, Agents fall back to the `trust_level` enum value
+1. `credential` is optional in v0.1. When absent or `null`, Agents fall back to the `trust_level` enum value
 2. When present, Agents that support VC verification should verify the `proof` before trusting the `trust_level`
 3. If `proof` verification fails, Agents must downgrade `trust_level` to `unverified` regardless of the claimed value
 4. `issuer` identifies the AIDP platform that performed verification. Future versions may support multiple issuers
@@ -150,7 +150,7 @@ The `verification.credential` field carries a W3C Verifiable Credential that cry
 
 ### C2PA Content Provenance (Reserved Field)
 
-For [Content](/spec/content) items that include media (images, documents), AIDP reserves the `content[].provenance` field for future **C2PA Content Credentials** integration:
+For [Content](/en/spec/content) items that include media (images, documents), AIDP reserves the `content[].provenance` field for future **C2PA Content Credentials** integration:
 
 ```json
 {
@@ -169,7 +169,7 @@ For [Content](/spec/content) items that include media (images, documents), AIDP 
 }
 ```
 
-This is a reserved field and is not yet active in v0.3. Agents must ignore this field until a future version activates the schema.
+This is a reserved field and is not yet active in v0.1. Agents must ignore this field until a future version activates the schema.
 
 ## Anti-Impersonation Rules
 
@@ -181,7 +181,7 @@ The following checks are **required** for all AIDP platform implementations:
 
 **Domain-Name Binding:** If `entity.domain` is set, `entity.name` must correspond to the domain owner. Platforms must reject registrations that claim the name of a well-known brand (e.g., "Apple", "Google", "Nike") but whose domain does not match the brand's known domain.
 
-**Name Similarity Detection:** At registration, `entity.name` (all locale variants) must be fuzzy-matched against all existing [Entities](/spec/entity) with `trust_level` >= `verified_domain`. If similarity exceeds the threshold and the domains do not match, registration must be rejected or escalated to manual review.
+**Name Similarity Detection:** At registration, `entity.name` (all locale variants) must be fuzzy-matched against all existing [Entities](/en/spec/entity) with `trust_level` >= `verified_domain`. If similarity exceeds the threshold and the domains do not match, registration must be rejected or escalated to manual review.
 
 **Type Restrictions:** `entity.type` values of `government` and `institutional` must undergo platform manual review. Self-service registration is prohibited for these types.
 
@@ -273,7 +273,7 @@ Platforms may add custom sources. Custom source IDs must be prefixed with `x-`.
 - `trust_score` answers the question: **"Are you who you claim to be?"** (identity)
 - `consistency_score` answers the question: **"Does what you say match what others say?"** (content accuracy)
 
-AI Agents should consider both dimensions when deciding how much to rely on an Entity's [Content](/spec/content):
+AI Agents should consider both dimensions when deciding how much to rely on an Entity's [Content](/en/spec/content):
 
 | trust_score | consistency_score | Agent Recommendation |
 |---|---|---|

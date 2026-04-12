@@ -142,7 +142,7 @@ AIDP 設計為可與 **W3C Verifiable Credentials 2.0** 生態系整合。本節
 
 **行為規則：**
 
-1. `credential` 在 v0.3 中為選用欄位。當缺少或為 `null` 時，Agent 退回使用 `trust_level` 列舉值
+1. `credential` 在 v0.1 中為選用欄位。當缺少或為 `null` 時，Agent 退回使用 `trust_level` 列舉值
 2. 當存在時，支援 VC 驗證的 Agent 應在信任 `trust_level` 之前驗證 `proof`
 3. 若 `proof` 驗證失敗，Agent 必須將 `trust_level` 降級為 `unverified`，不論宣稱的值為何
 4. `issuer` 識別執行驗證的 AIDP 平台。未來版本可能支援多個 issuer
@@ -169,7 +169,7 @@ AIDP 設計為可與 **W3C Verifiable Credentials 2.0** 生態系整合。本節
 }
 ```
 
-此欄位為保留欄位，在 v0.3 中尚未啟用。Agent 必須忽略此欄位，直到未來版本啟用該 schema。
+此欄位為保留欄位，在 v0.1 中尚未啟用。Agent 必須忽略此欄位，直到未來版本啟用該 schema。
 
 ## Anti-Impersonation 規則
 

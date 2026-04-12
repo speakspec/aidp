@@ -1,6 +1,6 @@
 # Full Example
 
-Below is a complete AIDP document using a restaurant as an example, demonstrating the combined use of [Entity](/spec/entity), [Content](/spec/content), [Verification](/spec/verification), [Directives](/spec/directives), [Community Integrity](/spec/community), and [Extensions](/spec/extensions).
+Below is a complete AIDP document using a restaurant as an example, demonstrating the combined use of [Entity](/en/spec/entity), [Content](/en/spec/content), [Verification](/en/spec/verification), [Directives](/en/spec/directives), [Community Integrity](/en/spec/community), and [Extensions](/en/spec/extensions).
 
 ```json
 {

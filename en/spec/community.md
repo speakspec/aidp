@@ -89,7 +89,7 @@ The platform employs multi-layered defenses to prevent abuse of the dispute syst
 |---|---|
 | `entity_updated` | Entity acknowledged and updated its content |
 | `evidence_insufficient` | Dispute evidence was not convincing |
-| `third_party_confirmed` | Cross-referencing ([Verification](/spec/verification) 4.6) confirmed the dispute |
+| `third_party_confirmed` | Cross-referencing ([Verification](/en/spec/verification) 4.6) confirmed the dispute |
 | `dispute_withdrawn` | Disputant withdrew the claim |
 | `platform_ruling` | Platform made a ruling |
 
@@ -125,7 +125,7 @@ integrity_score = f(consistency_score, dispute_ratio, response_rate, content_fre
 
 Where:
 
-- `consistency_score` -- From cross-reference verification ([Verification](/spec/verification) Section 4.6)
+- `consistency_score` -- From cross-reference verification ([Verification](/en/spec/verification) Section 4.6)
 - `dispute_ratio` -- Confirmed disputes / total content items (lower is better)
 - `response_rate` -- How quickly the entity resolves disputes (faster is better)
 - `content_freshness` -- Proportion of content updated within TTL

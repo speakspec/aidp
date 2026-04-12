@@ -414,7 +414,7 @@ The `trust_score` is a `float` between 0 and 1. The platform computes it based o
 trust_score = Σ(method_weight × method_status) / max_possible_score
 ```
 
-This is intentionally **not rigidly specified** in v0.3 — different platform implementations MAY use different weighting algorithms, but MUST expose the resulting `trust_level` enum so agents have a standardized signal.
+This is intentionally **not rigidly specified** in v0.1 — different platform implementations MAY use different weighting algorithms, but MUST expose the resulting `trust_level` enum so agents have a standardized signal.
 
 ### 4.4 Verifiable Credential Integration (Optional, Forward-Looking)
 
@@ -490,7 +490,7 @@ The `verification.credential` field carries a W3C Verifiable Credential that cry
 
 **Behavior rules:**
 
-1. `credential` is OPTIONAL in v0.3. When absent or `null`, agents fall back to `trust_level` enum
+1. `credential` is OPTIONAL in v0.1. When absent or `null`, agents fall back to `trust_level` enum
 2. When present, agents that support VC verification SHOULD validate the `proof` before trusting `trust_level`
 3. If `proof` validation fails, agents MUST downgrade `trust_level` to `unverified` regardless of the claimed value
 4. The `issuer` identifies the AIDP platform that performed verification. Multiple issuers MAY be supported in future versions
@@ -517,7 +517,7 @@ For content items that include media (images, documents), AIDP reserves the `con
 }
 ```
 
-This field is reserved and NOT active in v0.3. Agents MUST ignore it until a future version activates the schema.
+This field is reserved and NOT active in v0.1. Agents MUST ignore it until a future version activates the schema.
 
 ### 4.5 Anti-Impersonation Rules
 

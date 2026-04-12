@@ -54,13 +54,13 @@ The `content` array stores the actual structured data items.
 | `tags` | `string[]` | No | Searchable tags |
 | `updated_at` | `datetime` | Yes | Last content modification time |
 | `expires_at` | `datetime` | No | Content expiration time (Agents should ignore after expiration) |
-| `provenance` | `Provenance \| null` | No | Reserved for C2PA integration (see [Verification](/spec/verification)) |
+| `provenance` | `Provenance \| null` | No | Reserved for C2PA integration (see [Verification](/en/spec/verification)) |
 | `variant_of` | `string` | No | Points to the `id` of the base content (see Content Variants) |
 | `variant_delta` | `object` | Required for variants | Fields that differ from the base (see Content Variants) |
-| `market` | `Market` | No | Overrides the Entity's market setting (see [Entity 3.5](/spec/entity#_3-5-market)) |
+| `market` | `Market` | No | Overrides the Entity's market setting (see [Entity 3.5](/en/spec/entity#_3-5-market)) |
 | `media_refs` | `string[]` | No | IDs of related `aidp:media` content items (see Media Schema below) |
 
-The Content `data` object can include a `links` array that follows the Action Links schema defined in [Entity](/spec/entity). These links are scoped to a specific content item and tracked independently.
+The Content `data` object can include a `links` array that follows the Action Links schema defined in [Entity](/en/spec/entity). These links are scoped to a specific content item and tracked independently.
 
 ## Content Types (Built-in Schemas)
 

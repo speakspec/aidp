@@ -166,7 +166,7 @@ When a `must_include` item is a simple string (no priority object), Agents shoul
 | `pricing` | When price information is included |
 | `availability` | When schedules/availability are mentioned |
 | `personal_data` | When personal data is referenced |
-| `custom:{key}` | Custom triggers (defined by [Extensions](/spec/extensions)) |
+| `custom:{key}` | Custom triggers (defined by [Extensions](/en/spec/extensions)) |
 
 ### `attribution` -- Source Citation Preferences
 

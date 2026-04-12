@@ -20,8 +20,8 @@ The following endpoints do not require authentication and are accessible by anyo
 
 | Category | Description |
 |------|------|
-| [Public API](/api/public) | Access AIDP documents via HTTP with content negotiation support |
-| [MCP API](/api/mcp) | Access AIDP data via the MCP JSON-RPC protocol |
+| [Public API](/en/api/public) | Access AIDP documents via HTTP with content negotiation support |
+| [MCP API](/en/api/mcp) | Access AIDP data via the MCP JSON-RPC protocol |
 
 ## Platform Management API
 

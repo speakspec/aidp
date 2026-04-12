@@ -18,7 +18,7 @@ The AIDP document serves as the **single source of truth** and can be projected 
   (SEO-ready)  (AI nav)  (Agent)  (Social)  (3rd-party) (Web embed)
 ```
 
-Each projection is **lossy by design** -- only the AIDP JSON carries the complete [directive](/spec/directives) set. Other formats carry only what their schema permits:
+Each projection is **lossy by design** -- only the AIDP JSON carries the complete [directive](/en/spec/directives) set. Other formats carry only what their schema permits:
 
 | Format | Carries Content | Carries Directives | Carries Trust Info |
 |---|---|---|---|

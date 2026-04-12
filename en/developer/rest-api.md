@@ -78,4 +78,4 @@ Content-Usage: allow=Search
 
 If you are a SpeakSpec platform user, the platform also provides a full management API (authentication required) for managing Entities, Content, Directives, and more. Management API documentation is available within the platform after logging in.
 
-For the full public API reference, see: [API Reference](/api/)
+For the full public API reference, see: [API Reference](/en/api/)

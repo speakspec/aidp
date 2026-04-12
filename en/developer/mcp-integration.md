@@ -100,4 +100,4 @@ Use the Accept header to specify the response format:
 
 - Each MCP call automatically records AI exposure
 - Agents can be identified via the User-Agent header
-- Exposure data can be viewed in the [SpeakSpec Dashboard](/guide/speakspec-guide)
+- Exposure data can be viewed in the [SpeakSpec Dashboard](/en/guide/speakspec-guide)

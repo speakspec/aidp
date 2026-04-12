@@ -48,7 +48,7 @@ The simplest integration approach. AIDP documents are exposed as read-only MCP R
 }
 ```
 
-Suitable when: the entity's content volume is manageable (fewer than 100 items) and the agent needs full data including all [directives](/spec/directives).
+Suitable when: the entity's content volume is manageable (fewer than 100 items) and the agent needs full data including all [directives](/en/spec/directives).
 
 ### Mode B: AIDP as MCP Tool
 
