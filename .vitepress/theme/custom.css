@@ -14,6 +14,17 @@
   --vp-home-hero-image-filter: blur(44px);
 }
 
+.VPNavBarTitle .logo {
+  height: 28px;
+  width: auto;
+}
+
+.VPNavBarTitle .title {
+  font-weight: 300;
+  opacity: 0.5;
+  margin-left: 4px;
+}
+
 .dark {
   --vp-c-brand-1: #4CAF50;
   --vp-c-brand-2: #66BB6A;

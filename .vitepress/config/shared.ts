@@ -18,7 +18,11 @@ export const shared = defineConfig({
   ],
 
   themeConfig: {
-    logo: '/logo.svg',
+    logo: {
+      src: '/logo-fit.svg',
+      alt: 'SpeakSpec',
+    },
+    siteTitle: '| AIDP',
 
     socialLinks: [
       { icon: 'github', link: 'https://github.com/speakspec/aidp' },

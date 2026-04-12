@@ -7,6 +7,8 @@ Schema.org  ->  tells search engines what your content is
 AIDP        ->  tells AI agents what your content is + how to talk about it + how much to trust it
 ```
 
+**Full Spec:** [AIDP-SPEC-v0.4.0-draft.md](./AIDP-SPEC-v0.4.0-draft.md)
+
 **Docs:** [docs.speakspec.com](https://docs.speakspec.com)
 
 **Platform:** [speakspec.com](https://speakspec.com)
