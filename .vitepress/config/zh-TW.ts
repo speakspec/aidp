@@ -58,6 +58,7 @@ export const zhTW: LocaleSpecificConfig<DefaultTheme.Config> = {
           items: [
             { text: '完整範例', link: '/spec/full-example' },
             { text: '版本演進', link: '/spec/versioning' },
+            { text: 'Changelog', link: '/spec/changelog' },
             { text: 'Roadmap', link: '/spec/roadmap' },
             { text: '附錄 A: MIME Types', link: '/spec/appendix-mime' },
             { text: '附錄 B: URI Schemes', link: '/spec/appendix-uri' },

@@ -4,7 +4,7 @@ AIDP 文件是一個 JSON 物件，具有以下頂層結構：
 
 ```json
 {
-  "$aidp": "0.3.0",
+  "$aidp": "0.4.0",
   "entity": { },
   "verification": { },
   "content": [ ],

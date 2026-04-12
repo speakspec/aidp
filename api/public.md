@@ -48,7 +48,7 @@ Content-Usage: allow=Search
 
 ```json
 {
-  "aidp_version": "0.3.0",
+  "aidp_version": "0.4.0",
   "entity": {
     "id": "urn:aidp:entity:sakura-ramen-pdx",
     "name": "Sakura Ramen",

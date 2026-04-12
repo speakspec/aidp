@@ -64,7 +64,7 @@ curl https://api.speakspec.com/public/entity/my-shop \
 
 ```json
 {
-  "$aidp": "0.3.0",
+  "$aidp": "0.4.0",
   "entity": {
     "id": "urn:aidp:entity:my-shop",
     "type": "business",
