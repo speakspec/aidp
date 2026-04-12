@@ -19,7 +19,8 @@ export const shared = defineConfig({
 
   themeConfig: {
     logo: {
-      src: '/logo-fit.svg',
+      light: '/logo-fit.svg',
+      dark: '/logo-fit-dark.svg',
       alt: 'SpeakSpec',
     },
     siteTitle: '| AIDP',
