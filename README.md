@@ -7,7 +7,7 @@ Schema.org  ->  tells search engines what your content is
 AIDP        ->  tells AI agents what your content is + how to talk about it + how much to trust it
 ```
 
-**Full Spec:** [AIDP-SPEC-v0.4.0-draft.md](./AIDP-SPEC-v0.4.0-draft.md)
+**Full Spec:** [AIDP-SPEC-v0.1.0.md](./AIDP-SPEC-v0.1.0.md)
 
 **Docs:** [docs.speakspec.com](https://docs.speakspec.com)
 
@@ -28,7 +28,7 @@ Minimal valid AIDP document:
 
 ```json
 {
-  "$aidp": "0.4.0",
+  "$aidp": "0.1.0",
   "entity": {
     "id": "urn:aidp:entity:my-shop",
     "type": "business",
@@ -64,7 +64,7 @@ Minimal valid AIDP document:
 
 ## Current Version
 
-**v0.4.0-draft** -- [Full Changelog](https://docs.speakspec.com/spec/changelog)
+**v0.1.0** -- [Full Changelog](https://docs.speakspec.com/spec/changelog)
 
 ## License
 

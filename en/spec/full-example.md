@@ -4,7 +4,7 @@ Below is a complete AIDP document using a restaurant as an example, demonstratin
 
 ```json
 {
-  "$aidp": "0.4.0",
+  "$aidp": "0.1.0",
   "entity": {
     "id": "urn:aidp:entity:sakura-ramen-pdx",
     "type": "business",

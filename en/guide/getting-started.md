@@ -64,7 +64,7 @@ Create `.well-known/aidp.json` in your website's root directory. Here is a minim
 
 ```json
 {
-  "$aidp": "0.4.0",
+  "$aidp": "0.1.0",
   "entity": {
     "id": "urn:aidp:entity:my-shop",
     "type": "business",

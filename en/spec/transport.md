@@ -42,7 +42,7 @@ The simplest integration approach. AIDP documents are exposed as read-only MCP R
     {
       "uri": "aidp://entity/daan-clinic-pdx",
       "mimeType": "application/aidp+json",
-      "text": "{ \"$aidp\": \"0.4.0\", \"entity\": { ... }, ... }"
+      "text": "{ \"$aidp\": \"0.1.0\", \"entity\": { ... }, ... }"
     }
   ]
 }
@@ -132,7 +132,7 @@ When an entity has a large volume of content, expose query tools to return filte
   "content": [
     {
       "type": "text",
-      "text": "{\"$aidp\":\"0.4.0\",\"entity\":{\"id\":\"urn:aidp:entity:sakura-ramen-pdx\",\"name\":{\"default\":\"Sakura Ramen\"},\"type\":\"business\"},\"verification\":{\"trust_level\":\"verified_domain\",\"trust_score\":0.72},\"content\":[{\"id\":\"menu-vegan-miso\",\"type\":\"menu_item\",\"data\":{\"name\":\"Vegan Miso Ramen\",\"price\":{\"currency\":\"USD\",\"amount\":15.00}}}],\"directives\":{\"identity\":{\"preferred_name\":\"Sakura Ramen\"},\"response_rules\":{\"must_include\":[\"Closed every Wednesday\"],\"must_not_say\":[\"We do not offer delivery\"],\"tone\":\"friendly\"}}}"
+      "text": "{\"$aidp\":\"0.1.0\",\"entity\":{\"id\":\"urn:aidp:entity:sakura-ramen-pdx\",\"name\":{\"default\":\"Sakura Ramen\"},\"type\":\"business\"},\"verification\":{\"trust_level\":\"verified_domain\",\"trust_score\":0.72},\"content\":[{\"id\":\"menu-vegan-miso\",\"type\":\"menu_item\",\"data\":{\"name\":\"Vegan Miso Ramen\",\"price\":{\"currency\":\"USD\",\"amount\":15.00}}}],\"directives\":{\"identity\":{\"preferred_name\":\"Sakura Ramen\"},\"response_rules\":{\"must_include\":[\"Closed every Wednesday\"],\"must_not_say\":[\"We do not offer delivery\"],\"tone\":\"friendly\"}}}"
     }
   ]
 }
@@ -160,7 +160,7 @@ MCP servers hosting AIDP data should declare their AIDP capabilities in the serv
   },
   "protocolExtensions": {
     "aidp": {
-      "version": "0.4.0",
+      "version": "0.1.0",
       "entities": ["urn:aidp:entity:sakura-ramen-pdx"],
       "features": ["directives", "verification", "vc_credential"]
     }

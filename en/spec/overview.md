@@ -4,8 +4,8 @@ description: AIDP protocol specification overview, defining structured informati
 
 # Overview
 
-> **Version:** 0.4.0-draft
-> **Status:** Draft
+> **Version:** 0.1.0
+> **Status:** Released
 > **License:** CC-BY-4.0 (spec text)
 
 AIDP (AI Directive Protocol) defines a standard format that allows content providers (businesses, organizations, individuals) to publish **structured information designed for AI Agent consumption**, along with **directives that guide how AI should present that information in its responses**.
@@ -46,7 +46,7 @@ The smallest valid AIDP document. A business can start from here:
 
 ```json
 {
-  "$aidp": "0.4.0",
+  "$aidp": "0.1.0",
   "entity": {
     "id": "urn:aidp:entity:my-shop",
     "type": "business",

@@ -1,7 +1,7 @@
 # AIDP — AI Directive Protocol
 
-> **Version:** 0.4.0-draft
-> **Status:** Draft
+> **Version:** 0.1.0
+> **Status:** Released
 > **Author:** Otis / SpeakSpec
 > **License:** MIT (or CC-BY-4.0 for spec text)
 > **Last Updated:** 2026-04-04
@@ -45,7 +45,7 @@ The smallest valid AIDP document. A business owner can start with just this:
 
 ```json
 {
-  "$aidp": "0.4.0",
+  "$aidp": "0.1.0",
   "entity": {
     "id": "urn:aidp:entity:my-shop",
     "type": "business",
@@ -85,7 +85,7 @@ An AIDP document is a single JSON object with the following top-level structure:
 
 ```json
 {
-  "$aidp": "0.4.0",
+  "$aidp": "0.1.0",
   "entity": { },
   "verification": { },
   "content": [ ],
@@ -2056,7 +2056,7 @@ A complete AIDP document for a restaurant:
 
 ```json
 {
-  "$aidp": "0.4.0",
+  "$aidp": "0.1.0",
   "entity": {
     "id": "urn:aidp:entity:sakura-ramen-pdx",
     "type": "business",
@@ -2290,21 +2290,18 @@ A complete AIDP document for a restaurant:
 
 ---
 
-## 14. Roadmap (Post v0.3)
+## 14. Roadmap
 
-- [ ] **v0.3.1**: Redirect proxy tracking parameter standardization (9.6.1) and link_redirects/link_clicks behavior specification
-- [x] **v0.4**: Market availability field for entity and content (Section 3.5)
-- [x] **v0.4**: Content variants with `variant_of` / `variant_delta` mechanism (Section 5.4)
-- [x] **v0.4**: Language philosophy — content in any language, locale as hint (Section 5.1)
-- [ ] **v0.4**: Platform verification (OAuth and meta tag verification) for third-party link trust
-- [ ] **v0.4**: Real-time content push (WebSocket / SSE for live updates)
-- [ ] **v0.4**: Agent feedback loop (agent reports stale/incorrect content back to platform)
-- [ ] **v0.5**: Activate C2PA provenance field (Section 4.4.3) for media authentication
-- [ ] **v0.5**: Cryptographic content signing per-content-item
-- [ ] **v0.6**: Marketplace layer (premium directives, analytics for content providers)
-- [ ] **v0.6**: Projection plugin system (third parties can register custom output formats)
-- [ ] **v0.7**: Dispute reputation system (disputer track record affects dispute weight)
-- [ ] **v0.7**: Automated dispute resolution via multi-source consensus
+- [ ] **v0.1.1**: Redirect proxy tracking parameter standardization (9.6.1) and link_redirects/link_clicks behavior specification
+- [ ] **v0.1.x**: Platform verification (OAuth and meta tag verification) for third-party link trust
+- [ ] **v0.1.x**: Real-time content push (WebSocket / SSE for live updates)
+- [ ] **v0.1.x**: Agent feedback loop (agent reports stale/incorrect content back to platform)
+- [ ] **v0.2**: Activate C2PA provenance field (Section 4.4.3) for media authentication
+- [ ] **v0.2**: Cryptographic content signing per-content-item
+- [ ] **v0.3**: Marketplace layer (premium directives, analytics for content providers)
+- [ ] **v0.3**: Projection plugin system (third parties can register custom output formats)
+- [ ] **v0.4**: Dispute reputation system (disputer track record affects dispute weight)
+- [ ] **v0.4**: Automated dispute resolution via multi-source consensus
 - [ ] **v1.0**: Stable release with reference implementation + VC/DID fully active
 
 ---

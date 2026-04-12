@@ -4,7 +4,7 @@ An AIDP document is a JSON object with the following top-level structure:
 
 ```json
 {
-  "$aidp": "0.4.0",
+  "$aidp": "0.1.0",
   "entity": { },
   "verification": { },
   "content": [ ],

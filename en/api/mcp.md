@@ -72,7 +72,7 @@ Get Entity basic information (without content), including identity, verification
     "content": [
       {
         "type": "text",
-        "text": "[{\"$aidp\":\"0.4.0\",\"entity\":{\"id\":\"urn:aidp:entity:sakura-ramen-pdx\",\"name\":{\"default\":\"Sakura Ramen\"},\"type\":\"business\"},\"content\":[...],\"verification\":{\"trust_level\":\"verified_domain\"}}]"
+        "text": "[{\"$aidp\":\"0.1.0\",\"entity\":{\"id\":\"urn:aidp:entity:sakura-ramen-pdx\",\"name\":{\"default\":\"Sakura Ramen\"},\"type\":\"business\"},\"content\":[...],\"verification\":{\"trust_level\":\"verified_domain\"}}]"
       }
     ]
   }
