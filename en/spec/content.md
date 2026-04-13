@@ -15,8 +15,7 @@ The `content` array stores the actual structured data items.
         "description": "General internal medicine services including cold/flu treatment, chronic disease management, and health checkups",
         "availability": {
           "schedule": [
-            { "day": "mon", "hours": "09:00-12:00" },
-            { "day": "mon", "hours": "14:00-17:00" },
+            { "day": "mon", "hours": "09:00-12:00, 14:00-17:00" },
             { "day": "tue", "hours": "09:00-12:00" }
           ],
           "exceptions": [

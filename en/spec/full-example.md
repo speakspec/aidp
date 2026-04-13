@@ -145,15 +145,11 @@ Below is a complete AIDP document using a restaurant as an example, demonstratin
         "name": "Business Hours",
         "availability": {
           "schedule": [
-            { "day": "mon", "hours": "11:30-14:30" },
-            { "day": "mon", "hours": "17:00-21:30" },
-            { "day": "tue", "hours": "11:30-14:30" },
-            { "day": "tue", "hours": "17:00-21:30" },
+            { "day": "mon", "hours": "11:30-14:30, 17:00-21:30" },
+            { "day": "tue", "hours": "11:30-14:30, 17:00-21:30" },
             { "day": "wed", "status": "closed" },
-            { "day": "thu", "hours": "11:30-14:30" },
-            { "day": "thu", "hours": "17:00-21:30" },
-            { "day": "fri", "hours": "11:30-14:30" },
-            { "day": "fri", "hours": "17:00-22:00" },
+            { "day": "thu", "hours": "11:30-14:30, 17:00-21:30" },
+            { "day": "fri", "hours": "11:30-14:30, 17:00-22:00" },
             { "day": "sat", "hours": "11:00-22:00" },
             { "day": "sun", "hours": "11:00-21:00" }
           ]
