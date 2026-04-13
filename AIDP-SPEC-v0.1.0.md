@@ -2291,12 +2291,12 @@ A complete AIDP document for a restaurant:
 - [ ] **v0.1.x**: Platform verification (OAuth and meta tag verification) for third-party link trust
 - [ ] **v0.1.x**: Real-time content push (WebSocket / SSE for live updates)
 - [ ] **v0.1.x**: Agent feedback loop (agent reports stale/incorrect content back to platform)
-- [ ] **v0.0.2**: Activate C2PA provenance field (Section 4.4.3) for media authentication
-- [ ] **v0.0.2**: Cryptographic content signing per-content-item
-- [ ] **v0.0.3**: Marketplace layer (premium directives, analytics for content providers)
-- [ ] **v0.0.3**: Projection plugin system (third parties can register custom output formats)
-- [ ] **v0.0.4**: Dispute reputation system (disputer track record affects dispute weight)
-- [ ] **v0.0.4**: Automated dispute resolution via multi-source consensus
+- [ ] **v0.2**: Activate C2PA provenance field (Section 4.4.3) for media authentication
+- [ ] **v0.2**: Cryptographic content signing per-content-item
+- [ ] **v0.3**: Marketplace layer (premium directives, analytics for content providers)
+- [ ] **v0.3**: Projection plugin system (third parties can register custom output formats)
+- [ ] **v0.4**: Dispute reputation system (disputer track record affects dispute weight)
+- [ ] **v0.4**: Automated dispute resolution via multi-source consensus
 - [ ] **v1.0**: Stable release with reference implementation + VC/DID fully active
 
 ---
