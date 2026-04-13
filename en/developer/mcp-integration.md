@@ -4,7 +4,7 @@ MCP (Model Context Protocol) is the standard protocol for AI Agents to access ex
 
 ## MCP Endpoint
 
-- Single endpoint: `POST /mcp/v1`
+- Single endpoint: `POST /mcp`
 - Uses JSON-RPC 2.0 protocol
 - No authentication required
 

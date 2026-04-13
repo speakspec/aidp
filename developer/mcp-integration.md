@@ -4,7 +4,7 @@ MCP（Model Context Protocol）是讓 AI Agent 存取外部資料的標準協定
 
 ## MCP 端點
 
-- 單一端點：`POST /mcp/v1`
+- 單一端點：`POST /mcp`
 - 使用 JSON-RPC 2.0 協定
 - 不需要認證
 

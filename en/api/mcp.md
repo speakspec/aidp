@@ -7,7 +7,7 @@ Base URL: `https://api.speakspec.com`
 ## Endpoint
 
 ```
-POST /mcp/v1
+POST /mcp
 ```
 
 Uses the JSON-RPC 2.0 protocol.
