@@ -7,7 +7,7 @@ Base URL: `https://api.speakspec.com`
 ## 端點
 
 ```
-POST /mcp/v1
+POST /mcp
 ```
 
 使用 JSON-RPC 2.0 協定。
