@@ -60,6 +60,31 @@ This setting is optional and does not affect existing functionality if left unse
 
 Entity data can be exported as a JSON file from the edit page for backup or migration purposes.
 
+### Ownership and Lifecycle
+
+The Danger Zone on the Entity page offers ownership and lifecycle actions. Available options depend on your role:
+
+- **Transfer ownership (owner only)**: Pick an existing admin or editor as the new owner. After transfer, the original owner is demoted to admin.
+- **Dissolve entity (owner only)**: Type the full aidp_id to confirm and avoid accidental dissolution. For 14 days after dissolution, only the original owner can restore the entity or recreate it with the same aidp_id / domain.
+- **Leave entity (non-owner members)**: Give up your personal access while other members continue to use the entity. Owners cannot leave directly — transfer ownership or dissolve the entity first.
+
+### Restoring or Recreating After Dissolution
+
+After dissolution, when the original owner returns to the dashboard, a restore banner is displayed:
+
+- **Restore**: Reverts the entity to its pre-dissolution state. Content, verification, and directives are all restored.
+- **Recreate (empty)**: Creates a new empty entity with the same aidp_id. Previous data is discarded.
+
+Once the 14-day cooldown expires the banner disappears, and the slug and domain are released publicly.
+
+### Slug / Domain Cooldown
+
+To prevent impersonation and accidental reclaiming, the slug and domain of a dissolved entity enter a 14-day cooldown:
+
+- During the cooldown, other users attempting to create the same slug or bind the same domain see a notice indicating when the cooldown ends.
+- The original owner is not restricted and can recreate immediately.
+- After the cooldown ends, the slug and domain are automatically released for anyone to use.
+
 ## Verification {#verification}
 
 Verification is the core step in establishing trust. Completing verification raises your Entity's trust level, making AI systems more likely to reference your information.
