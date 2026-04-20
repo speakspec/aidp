@@ -6,6 +6,20 @@ description: AIDP 協議各版本的詳細變更紀錄
 
 所有協議版本的變更紀錄。遵循 [Semantic Versioning](https://semver.org/)。
 
+## v0.4.0-draft (進行中)
+
+### Verification
+
+- **路徑式信任模型（path-based，非加成）**：改以三個獨立路徑作為門檻，平台取達成的最高值，不再逐項加總
+  - `email_domain` (role address) → `claimed` (0.40)
+  - `dns_txt` / `dns_cname` → `verified_domain` (0.65)
+  - DNS + `business_registration`（管理員審核通過）→ `verified_organization` (0.80)
+- `business_registration` 需先有 DNS 驗證作為前置條件
+- `meta_tag` 不納入信任分數計算（僅為顯示用途）
+- 新增 **stackable bonus**：`manual_review` 於任何路徑可疊加 +0.10，僅限管理員發起
+- 新增 **tier cap 0.89**：非特權實體類型上限為 0.89（僅 `government`/`institutional` 可超過）
+- 新增 **trust_level override**：管理員可無條件覆寫 `trust_level` enum；需填寫原因並寫入審計日誌
+
 ## v0.1.0 (2026-04-12)
 
 Initial public release of the AIDP protocol.
