@@ -6,6 +6,20 @@ description: Detailed changelog for each version of the AIDP protocol
 
 Changelog for all protocol versions. Follows [Semantic Versioning](https://semver.org/).
 
+## v0.4.0-draft (in progress)
+
+### Verification
+
+- **Path-based trust model (non-additive)**: three independent gates; the platform picks the highest reached, paths no longer sum
+  - `email_domain` (role address) → `claimed` (0.40)
+  - `dns_txt` / `dns_cname` → `verified_domain` (0.65)
+  - DNS **and** admin-approved `business_registration` → `verified_organization` (0.80)
+- `business_registration` now requires a verified DNS method as a prerequisite
+- `meta_tag` is excluded from the score (display only)
+- New **stackable bonus**: `manual_review` adds +0.10 on any path; admin-initiated only
+- New **tier cap 0.89**: non-privileged entity types cannot exceed 0.89 (only `government` / `institutional` may)
+- New **trust_level override**: admins may pin `trust_level` to any enum value with a required reason, recorded in the audit log
+
 ## v0.1.0 (2026-04-12)
 
 Initial public release of the AIDP protocol.
