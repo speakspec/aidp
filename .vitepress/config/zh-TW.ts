@@ -86,6 +86,7 @@ export const zhTW: LocaleSpecificConfig<DefaultTheme.Config> = {
           items: [
             { text: '總覽', link: '/api/' },
             { text: 'Public API', link: '/api/public' },
+            { text: 'Authenticated API', link: '/api/authenticated' },
             { text: 'MCP API', link: '/api/mcp' },
           ],
         },

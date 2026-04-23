@@ -14,18 +14,13 @@ https://api.speakspec.com
 
 All responses are in JSON format.
 
-## Public Endpoints
+## Endpoint Categories
 
-The following endpoints do not require authentication and are accessible by anyone:
-
-| Category | Description |
-|------|------|
-| [Public API](/en/api/public) | Access AIDP documents via HTTP with content negotiation support |
-| [MCP API](/en/api/mcp) | Access AIDP data via the MCP JSON-RPC protocol |
-
-## Platform Management API
-
-The SpeakSpec platform also provides a full management API for registered users to manage Entities, Content, Directives, verification, and analytics data. The management API requires authentication; please refer to the built-in API documentation within the platform.
+| Category | Auth | Description |
+|------|------|------|
+| [Public API](/en/api/public) | None | Access AIDP documents via HTTP with content negotiation |
+| [MCP API](/en/api/mcp) | None | Access AIDP data via the MCP JSON-RPC protocol |
+| [Authenticated API](/en/api/authenticated) | API Key | Manage Entities, Content, Directives, and other resources |
 
 ## Rate Limiting
 
