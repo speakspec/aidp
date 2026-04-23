@@ -17,7 +17,7 @@ The AIDP protocol provides three integration methods, suited to different use ca
 | Method | Use Case | Authentication | Real-time Updates | Full Directive Support |
 |---|---|---|---|---|
 | MCP | Direct AI Agent access | Not required | Yes | Yes |
-| REST API | Third-party system integration | JWT Token | Yes | Yes |
+| REST API | Third-party system integration | API Key | Yes | Yes |
 | Static File | Simple deployment, self-hosting | Not required | Manual | Yes |
 
 ## How to Choose

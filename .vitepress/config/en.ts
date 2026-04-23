@@ -85,6 +85,7 @@ export const en: LocaleSpecificConfig<DefaultTheme.Config> = {
           items: [
             { text: 'Overview', link: '/en/api/' },
             { text: 'Public API', link: '/en/api/public' },
+            { text: 'Authenticated API', link: '/en/api/authenticated' },
             { text: 'MCP API', link: '/en/api/mcp' },
           ],
         },

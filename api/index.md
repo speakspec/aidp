@@ -14,18 +14,13 @@ https://api.speakspec.com
 
 所有回應為 JSON 格式。
 
-## 公開端點
+## 端點分類
 
-以下端點不需要認證，任何人都可以存取：
-
-| 分類 | 說明 |
-|------|------|
-| [Public API](/api/public) | 透過 HTTP 存取 AIDP 文件，支援內容協商 |
-| [MCP API](/api/mcp) | 透過 MCP JSON-RPC 協定存取 AIDP 資料 |
-
-## 平台管理 API
-
-SpeakSpec 平台另提供完整的管理 API，供已註冊用戶管理 Entity、Content、Directives、驗證及分析資料。管理 API 需要認證，文件請參閱平台內建的 API 說明。
+| 分類 | 認證 | 說明 |
+|------|------|------|
+| [Public API](/api/public) | 不需要 | 透過 HTTP 存取 AIDP 文件，支援內容協商 |
+| [MCP API](/api/mcp) | 不需要 | 透過 MCP JSON-RPC 協定存取 AIDP 資料 |
+| [Authenticated API](/api/authenticated) | API Key | 管理 Entity、Content、Directives 等資源 |
 
 ## Rate Limiting
 
