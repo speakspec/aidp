@@ -10,6 +10,7 @@ export const zhTW: LocaleSpecificConfig<DefaultTheme.Config> = {
       { text: '協議規範', link: '/spec/overview', activeMatch: '/spec/' },
       { text: '開發者', link: '/developer/integration', activeMatch: '/developer/' },
       { text: 'API 參考', link: '/api/', activeMatch: '/api/' },
+      { text: '常見問題', link: '/faq', activeMatch: '/faq' },
       {
         text: 'SpeakSpec',
         items: [
