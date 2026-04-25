@@ -70,7 +70,7 @@ Content `data` 物件可以包含一個 `links` 陣列，遵循 [Entity](/spec/e
 | `aidp:service` | name, description, availability, pricing, requirements | 服務項目 |
 | `aidp:product` | name, description, price, variants, inventory_status | 電商 / 零售 |
 | `aidp:article` | title, body, author, published_at, summary | 部落格 / 新聞 / 知識庫 |
-| `aidp:faq` | question, answer | 問答配對 |
+| `aidp:faq` | items[]（或單一 question/answer） | 問答配對（見下方 FAQ Schema） |
 | `aidp:event` | title, start, end, location, registration_url | 活動 / 事件 |
 | `aidp:menu_item` | name, description, price, allergens, available | 餐廳 / 餐飲 |
 | `aidp:person` | name, role, bio, expertise | 團隊 / 人員檔案 |
@@ -80,6 +80,50 @@ Content `data` 物件可以包含一個 `links` 陣列，遵循 [Entity](/spec/e
 | `aidp:media` | media_type, purpose, url, alt, format, dimensions | 圖片、影片、文件（見下方 Media Schema） |
 
 自訂 schemas 使用 URI 格式：`https://example.com/schemas/my-type`
+
+## FAQ Schema（`aidp:faq`）
+
+單一 FAQ content 項目可以包含多個 Q&A pair。支援兩種格式：
+
+**建議使用 — `items[]` 容器**（將多組 Q&A 合併為單一 content）：
+
+```json
+{
+  "id": "general-faq",
+  "type": "faq",
+  "data": {
+    "title": "常見問題",
+    "items": [
+      { "question": "你們的退貨政策？", "answer": "30 天內可全額退款。" },
+      { "question": "有國際出貨嗎？", "answer": "有，可寄送至 40 多個國家。" }
+    ]
+  }
+}
+```
+
+**舊版 — 單一 `question` / `answer`**（一個 content 一筆 Q&A，為向下相容保留）：
+
+```json
+{
+  "id": "return-policy-faq",
+  "type": "faq",
+  "data": {
+    "question": "你們的退貨政策？",
+    "answer": "30 天內可全額退款。"
+  }
+}
+```
+
+| 欄位 | 型別 | 必填 | 說明 |
+|---|---|---|---|
+| `title` | `string` | 否 | 群組標題（例如：「運送」、「退貨」） |
+| `items[]` | `array` | `items[]` 或 `question`+`answer` 擇一必填 | Q&A pair 列表 |
+| `items[].question` | `string` | 是（每筆 item） | 問題文字 |
+| `items[].answer` | `string` | 是（每筆 item） | 答案文字，可使用 Markdown |
+| `question` | `string` | 僅舊版單筆格式 | 問題文字 |
+| `answer` | `string` | 僅舊版單筆格式 | 答案文字，可使用 Markdown |
+
+消費端必須同時支援兩種格式。投影至 Schema.org 時，兩種格式都會對應到 `FAQPage` → `mainEntity[]` 的 `Question` / `Answer`。
 
 ## 語言哲學
 

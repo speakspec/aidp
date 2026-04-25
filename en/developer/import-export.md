@@ -108,7 +108,7 @@ POST /entities/:entityId/import?dry_run=false
 
 ### Request Format
 
-Import requires only the `contents` array:
+Import accepts the `contents` array, with optional `directives` and `import_directives` flag:
 
 ```json
 {
@@ -119,21 +119,43 @@ Import requires only the `contents` array:
       "data": { "name": "New Product" },
       "tags": ["new"]
     }
-  ]
+  ],
+  "directives": { "identity": {}, "response_rules": {}, "attribution": {}, "freshness": {}, "access_control": {} },
+  "import_directives": false
 }
 ```
 
+### Import Scope
+
+| Field | Imported | Notes |
+|---|---|---|
+| `contents[]` | ✅ Yes | Includes each content's nested `links[]` |
+| `directives` | Default no | Requires `import_directives: true` to import; imported directives enter `pending_review` status |
+| Entity fields (`name`, `type`, `description`, `market`, etc.) | ❌ No | Present in export but ignored on import |
+| Verification records, members, API keys, webhooks, audit logs | ❌ No | Not included in export |
+
 ### Dry Run
 
-When `dry_run=true`, the system does not actually write data -- it only returns a preview of the results:
+When `dry_run=true`, the system does not actually write data -- it returns a preview including the action for each content:
 
 ```json
 {
   "would_create": { "contents": 3, "links": 1 },
+  "preview": [
+    { "content_id": "faq-1", "type": "faq", "action": "create", "is_variant": false },
+    { "content_id": "faq-2", "type": "faq", "action": "skip_duplicate", "is_variant": false }
+  ],
+  "has_directives": true,
   "warnings": [],
   "errors": []
 }
 ```
+
+| Field | Description |
+|---|---|
+| `preview[].action` | `create` (will be created) or `skip_duplicate` (content_id already exists, will be skipped) |
+| `preview[].is_variant` | Whether this is a variant content (`variant_of` is set) |
+| `has_directives` | Whether the file contains a directives block |
 
 ### Variant Import
 

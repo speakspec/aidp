@@ -70,7 +70,7 @@ The protocol defines commonly used schemas. Providers can also define custom sch
 | `aidp:service` | name, description, availability, pricing, requirements | Service offerings |
 | `aidp:product` | name, description, price, variants, inventory_status | E-commerce / Retail |
 | `aidp:article` | title, body, author, published_at, summary | Blog / News / Knowledge base |
-| `aidp:faq` | question, answer | Q&A pairs |
+| `aidp:faq` | items[] (or single question/answer) | Q&A pairs (see FAQ Schema below) |
 | `aidp:event` | title, start, end, location, registration_url | Events |
 | `aidp:menu_item` | name, description, price, allergens, available | Restaurant / Food service |
 | `aidp:person` | name, role, bio, expertise | Team / Personnel profiles |
@@ -80,6 +80,50 @@ The protocol defines commonly used schemas. Providers can also define custom sch
 | `aidp:media` | media_type, purpose, url, alt, format, dimensions | Images, videos, documents (see Media Schema below) |
 
 Custom schemas use URI format: `https://example.com/schemas/my-type`
+
+## FAQ Schema (`aidp:faq`)
+
+A single FAQ content item MAY contain multiple Q&A pairs. Two formats are supported:
+
+**Recommended — `items[]` container** (group multiple Q&A pairs as a single content item):
+
+```json
+{
+  "id": "general-faq",
+  "type": "faq",
+  "data": {
+    "title": "General questions",
+    "items": [
+      { "question": "What is your return policy?", "answer": "30 days, full refund." },
+      { "question": "Do you ship internationally?", "answer": "Yes, to 40+ countries." }
+    ]
+  }
+}
+```
+
+**Legacy — single `question` / `answer`** (one Q&A per content item, kept for backward compatibility):
+
+```json
+{
+  "id": "return-policy-faq",
+  "type": "faq",
+  "data": {
+    "question": "What is your return policy?",
+    "answer": "30 days, full refund."
+  }
+}
+```
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `title` | `string` | No | Optional group title (e.g., "Shipping", "Returns") |
+| `items[]` | `array` | Either `items[]` or `question`+`answer` is required | List of Q&A pairs |
+| `items[].question` | `string` | Yes (within item) | The question text |
+| `items[].answer` | `string` | Yes (within item) | The answer text. Markdown is permitted |
+| `question` | `string` | Legacy single-pair only | The question text |
+| `answer` | `string` | Legacy single-pair only | The answer text. Markdown is permitted |
+
+Consumers MUST handle both formats. When projecting to Schema.org, both forms map to `FAQPage` → `mainEntity[]` of `Question` / `Answer`.
 
 ## Language Philosophy
 

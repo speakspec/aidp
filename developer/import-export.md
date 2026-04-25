@@ -108,7 +108,7 @@ POST /entities/:entityId/import?dry_run=false
 
 ### 請求格式
 
-匯入只需要 `contents` 陣列：
+匯入接受 `contents` 陣列，並可選帶 `directives` 與 `import_directives` 旗標：
 
 ```json
 {
@@ -119,21 +119,43 @@ POST /entities/:entityId/import?dry_run=false
       "data": { "name": "New Product" },
       "tags": ["new"]
     }
-  ]
+  ],
+  "directives": { "identity": {}, "response_rules": {}, "attribution": {}, "freshness": {}, "access_control": {} },
+  "import_directives": false
 }
 ```
 
+### 匯入範圍
+
+| 欄位 | 是否匯入 | 備註 |
+|---|---|---|
+| `contents[]` | ✅ 是 | 包含每筆 content 內的 `links[]` |
+| `directives` | 預設否 | 需設定 `import_directives: true` 才會匯入；匯入後 directives 會進入 `pending_review` 狀態 |
+| Entity 欄位（`name`, `type`, `description`, `market` 等） | ❌ 否 | Export 檔含這些欄位但匯入端會略過 |
+| 驗證紀錄、會員、API Key、Webhook、audit logs | ❌ 否 | Export 不含 |
+
 ### Dry Run
 
-設定 `dry_run=true` 時，系統不會實際寫入，僅回傳預覽結果：
+設定 `dry_run=true` 時，系統不會實際寫入，回傳預覽結果含每筆 content 的處理動作：
 
 ```json
 {
   "would_create": { "contents": 3, "links": 1 },
+  "preview": [
+    { "content_id": "faq-1", "type": "faq", "action": "create", "is_variant": false },
+    { "content_id": "faq-2", "type": "faq", "action": "skip_duplicate", "is_variant": false }
+  ],
+  "has_directives": true,
   "warnings": [],
   "errors": []
 }
 ```
+
+| 欄位 | 說明 |
+|---|---|
+| `preview[].action` | `create`（將建立）或 `skip_duplicate`（content_id 已存在，將略過） |
+| `preview[].is_variant` | 是否為 variant content（`variant_of` 不為空） |
+| `has_directives` | 檔案是否含 directives 區塊 |
 
 ### Variant 匯入
 
