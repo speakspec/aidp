@@ -107,6 +107,62 @@ curl -X POST https://api.speakspec.com/api/entities/{entityId}/contents \
 
 For the full endpoint catalog, scope rules, and error codes, see [Authenticated API reference](/en/api/authenticated).
 
+## Member Invitation Endpoints
+
+Invitation endpoints use user JWT authentication (API keys are not accepted).
+
+### Cancel an invitation
+
+`DELETE /api/v1/entities/:id/members/invitations/:inv_id`
+
+Admin / owner only. Marks a pending invitation as `expired`. Responds with `204 No Content`.
+
+### Preview an invitation (public)
+
+`GET /api/v1/invitations/:token/preview`
+
+No authentication required. Lets a logged-out visitor decide whether an invitation is valid and whether the target email is already registered, so the client can route to login or register accordingly.
+
+Response:
+
+```json
+{
+  "email": "alice@example.com",
+  "entity_aidp_id": "urn:aidp:entity:bob-corp",
+  "entity_name": "urn:aidp:entity:bob-corp",
+  "role": "editor",
+  "exists": true,
+  "expired": false
+}
+```
+
+### List my pending invitations
+
+`GET /api/v1/me/invitations`
+
+Returns invitations addressed to the current user's email that are `status=pending` and not expired, enriched with inviter display name and entity info. Used by the dashboard pending-invitations panel.
+
+### Decline an invitation
+
+`POST /api/v1/me/invitations/:token/decline`
+
+Marks an invitation as `expired`. The server enforces that `invitation.email` matches the current user's email; mismatches return `INVITE_EMAIL_MISMATCH`.
+
+### Accept an invitation
+
+`POST /api/v1/invitations/:token/accept`
+
+Authenticated. The invitation email must match the current user. On success, if the user has a soft-deleted entity within the 14-day cooldown window, that entity is hard-deleted and its `aidp_id` / `domain` cooldowns are purged. Response:
+
+```json
+{
+  "member": { "id": "...", "entity_id": "...", "role": "editor", "joined_at": "..." },
+  "dissolved_purged": { "aidp_id": "urn:aidp:entity:alice-shop" }
+}
+```
+
+`dissolved_purged` only appears when a purge actually happened.
+
 ## Error Format
 
 All errors return:

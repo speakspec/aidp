@@ -107,6 +107,62 @@ curl -X POST https://api.speakspec.com/api/entities/{entityId}/contents \
 
 完整端點清單、Scope 規則、錯誤碼請見：[Authenticated API 參考](/api/authenticated)。
 
+## Member 邀請端點
+
+邀請端點以使用者 JWT 認證（不接受 API Key）。
+
+### 取消邀請
+
+`DELETE /api/v1/entities/:id/members/invitations/:inv_id`
+
+僅 admin / owner 可呼叫。把指定的 pending 邀請狀態改為 `expired`。回應 `204 No Content`。
+
+### 邀請預覽（公開）
+
+`GET /api/v1/invitations/:token/preview`
+
+不需認證。供未登入訪客判斷邀請是否有效以及對應 email 是否已註冊，據此導向 login 或 register。
+
+回應：
+
+```json
+{
+  "email": "alice@example.com",
+  "entity_aidp_id": "urn:aidp:entity:bob-corp",
+  "entity_name": "urn:aidp:entity:bob-corp",
+  "role": "editor",
+  "exists": true,
+  "expired": false
+}
+```
+
+### 列出我收到的邀請
+
+`GET /api/v1/me/invitations`
+
+回傳當前使用者 email 對應、`status=pending` 且未過期的邀請清單，含邀請者顯示名稱與 entity 資訊，供 dashboard 顯示。
+
+### 拒絕邀請
+
+`POST /api/v1/me/invitations/:token/decline`
+
+把邀請狀態改為 `expired`。Server 端會檢查 `invitation.email` 必須等於當前使用者 email；不符回 `INVITE_EMAIL_MISMATCH`。
+
+### 接受邀請
+
+`POST /api/v1/invitations/:token/accept`
+
+需登入。Email 必須匹配；接受後若使用者有處於 14 天 cooldown 的 dissolved entity，會被 hard-delete 並一併清除對應的 `aidp_id` / `domain` cooldown。回應：
+
+```json
+{
+  "member": { "id": "...", "entity_id": "...", "role": "editor", "joined_at": "..." },
+  "dissolved_purged": { "aidp_id": "urn:aidp:entity:alice-shop" }
+}
+```
+
+`dissolved_purged` 僅在實際清除時出現。
+
 ## 錯誤格式
 
 所有錯誤皆以下列 JSON 結構回傳：
