@@ -6,7 +6,8 @@ MCP (Model Context Protocol) is the standard protocol for AI Agents to access ex
 
 - Single endpoint: `POST /mcp`
 - Uses JSON-RPC 2.0 protocol
-- No authentication required
+- **Public mode**: no authentication required — exposes `aidp_query`, `aidp_entity_info`, and all resource endpoints
+- **Authenticated mode**: pass an API key via `X-API-Key` header to unlock 50 entity-scoped tools covering every REST API read/write operation
 
 ## Two Access Modes
 
@@ -87,6 +88,45 @@ Retrieve only the Entity's basic information (without content, suitable for quic
 }
 ```
 
+## Authenticated Mode (X-API-Key)
+
+Add `X-API-Key: aidp_...` to the HTTP headers of any MCP request to unlock 50 entity-scoped tools. Each tool is automatically bound to the entity that owns the API key — you do not need to (and should not) pass `entity_id` in the arguments.
+
+### Claude Desktop Integration
+
+Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "speakspec": {
+      "url": "https://api.speakspec.com/mcp",
+      "headers": { "X-API-Key": "aidp_YOUR_KEY_HERE" }
+    }
+  }
+}
+```
+
+After restarting Claude Desktop, you can drive the platform through natural language, for example: "Update the 'About Us' section to emphasize sustainability and publish it."
+
+### Scope Rules
+
+| API key scope | Callable tool groups |
+|---|---|
+| `read` | All read tools named `aidp_*_get`, `aidp_*_list`, `aidp_output_*`, `aidp_analytics_*`, `aidp_entity_summary`, `aidp_search_own_entity`, `aidp_export` |
+| `write` | All read tools + create / update / delete / publish / lock / import write tools |
+
+Calling a write tool with a `read` key returns JSON-RPC error code `-32002` (INSUFFICIENT_SCOPE).
+
+### Rate Limit
+
+- Public calls (no header): 60 req/min per IP
+- Authenticated calls: 300 req/min per API key
+
+### Tool Reference (REST ↔ MCP)
+
+See [API Reference: MCP](/en/api/mcp) for the full 50-tool mapping to REST endpoints.
+
 ## Content Negotiation
 
 Use the Accept header to specify the response format:
@@ -100,4 +140,5 @@ Use the Accept header to specify the response format:
 
 - Each MCP call automatically records AI exposure
 - Agents can be identified via the User-Agent header
+- Public calls are recorded as `source=mcp`; authenticated calls as `source=api_key_mcp` (tracked separately from public agent impressions)
 - Exposure data can be viewed in the [SpeakSpec Dashboard](/en/guide/speakspec-guide)

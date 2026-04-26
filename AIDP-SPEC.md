@@ -1,10 +1,18 @@
+---
+spec: AIDP
+version: 0.1.0
+status: stable
+released: 2026-04-23
+supersedes: null
+---
+
 # AIDP — AI Directive Protocol
 
 > **Version:** 0.1.0
-> **Status:** Released
+> **Status:** Stable
 > **Author:** Otis / SpeakSpec
 > **License:** MIT (or CC-BY-4.0 for spec text)
-> **Last Updated:** 2026-04-04
+> **Last Updated:** 2026-04-23
 
 ## 1. Overview
 
@@ -382,14 +390,14 @@ Defines **how the entity's identity is verified** and produces a computed trust 
 
 | `type` | Description | Trust Weight |
 |---|---|---|
-| `dns_txt` | TXT record on domain pointing to AIDP entity ID | High |
-| `dns_cname` | CNAME subdomain delegation (e.g., `_aidp.example.com`) | High |
-| `meta_tag` | `<meta name="aidp-verify">` in website HTML | Medium |
-| `business_registration` | Government business registration number verified | High |
+| `dns_txt` | TXT record on domain pointing to AIDP entity ID | Path gate → `verified_domain` |
+| `dns_cname` | CNAME subdomain delegation (e.g., `_aidp.example.com`) | Path gate → `verified_domain` |
+| `meta_tag` | `<meta name="aidp-verify">` in website HTML | **Not counted** (display only, trivially spoofable) |
+| `business_registration` | Government business registration document, admin-reviewed. Requires a verified DNS method as prerequisite. | Path gate → `verified_organization` |
 | `domain_whois` | Domain WHOIS matches entity info | Medium |
-| `email_domain` | Verified email on matching domain | Low |
+| `email_domain` | Verified email on matching domain (role address) | Path gate → `claimed` |
 | `social_verification` | Linked social account with matching identity | Low |
-| `manual_review` | Platform staff manual verification | High |
+| `manual_review` | Platform staff manual verification | Stackable bonus, +0.10 on any path. Admin-initiated only. |
 | `third_party` | External verification provider (extensible) | Varies |
 | `verifiable_credential` | W3C Verifiable Credential presented (see 4.4) | High |
 
@@ -408,13 +416,48 @@ Trust level is **derived by the platform**, not self-declared. The enum values a
 
 ### 4.3 Trust Score Computation
 
-The `trust_score` is a `float` between 0 and 1. The platform computes it based on:
+The `trust_score` is a `float` between 0 and 1. v0.1 defines a **path-based** model (not additive across paths) with one stackable bonus and one tier cap:
+
+**Path gates (pick the highest reached, not additive):**
+
+| Path | Requirement | Score |
+|---|---|---|
+| `claimed` | Verified `email_domain` only | 0.40 |
+| `verified_domain` | Verified `dns_txt` or `dns_cname` | 0.65 |
+| `verified_organization` | Verified DNS (txt/cname) **AND** admin-approved `business_registration` | 0.80 |
+
+`email_domain` and DNS paths do **not** stack — if both are verified the higher (DNS) wins. `business_registration` requires DNS as a prerequisite and cannot be submitted before DNS is verified. `meta_tag` is not counted in the score.
+
+**Stackable bonus:**
+
+| Method | Effect |
+|---|---|
+| `manual_review` | +0.10 on top of the reached path score. Admin-initiated only; not self-service. Reason is captured on the verification and audit log. One active `manual_review` per entity. |
+
+**Tier cap:**
+
+Non-privileged entity types (everything except `government` and `institutional`) are hard-capped at **0.89** to prevent self-service entities from reaching `institutional` / `sovereign` tiers without platform review. Types `government` and `institutional` may exceed the cap (they require platform manual review to be set anyway).
+
+**Trust level override (admin):**
+
+Platforms MAY expose an administrator override that pins `trust_level` to a chosen enum value regardless of the computed score. When set, the override replaces `trust_level` but the underlying `trust_score` continues to reflect the computed path score. Overrides MUST require a reason and MUST be recorded in the audit log.
+
+Pseudocode:
 
 ```
-trust_score = Σ(method_weight × method_status) / max_possible_score
+score = 0.10        // unverified baseline
+if verified(email_domain):              score = max(score, 0.40)
+if verified(dns_txt) or verified(dns_cname):  score = max(score, 0.65)
+if (verified(dns_txt) or verified(dns_cname))
+   and verified(business_registration): score = max(score, 0.80)
+if verified(manual_review):             score += 0.10
+if entity.type not in {government, institutional}:
+   score = min(score, 0.89)
+trust_level = deriveLevel(score)        // thresholds in 4.2
+if admin_override_set: trust_level = admin_override
 ```
 
-This is intentionally **not rigidly specified** in v0.1 — different platform implementations MAY use different weighting algorithms, but MUST expose the resulting `trust_level` enum so agents have a standardized signal.
+Platforms MAY implement stricter weighting, but MUST expose the resulting `trust_level` enum so agents have a standardized signal.
 
 ### 4.4 Verifiable Credential Integration (Optional, Forward-Looking)
 
@@ -686,7 +729,8 @@ The `content` array holds the actual structured data entries.
         "description": "General internal medicine services including cold/flu treatment, chronic disease management, and health checkups",
         "availability": {
           "schedule": [
-            { "day": "mon", "hours": "09:00-12:00, 14:00-17:00" },
+            { "day": "mon", "hours": "09:00-12:00" },
+            { "day": "mon", "hours": "14:00-17:00" },
             { "day": "tue", "hours": "09:00-12:00" }
           ],
           "exceptions": [
@@ -749,7 +793,7 @@ The protocol defines common schemas. Providers MAY define custom schemas.
 | `aidp:service` | name, description, availability, pricing, requirements | Service offerings |
 | `aidp:product` | name, description, price, variants, inventory_status | E-commerce / retail |
 | `aidp:article` | title, body, author, published_at, summary | Blog / news / knowledge |
-| `aidp:faq` | question, answer | Q&A pairs |
+| `aidp:faq` | items[] (or single question/answer) | Q&A pairs (see 5.2.1) |
 | `aidp:event` | title, start, end, location, registration_url | Events / activities |
 | `aidp:menu_item` | name, description, price, allergens, available | Restaurant / food |
 | `aidp:person` | name, role, bio, expertise | Team / staff profiles |
@@ -759,6 +803,50 @@ The protocol defines common schemas. Providers MAY define custom schemas.
 | `aidp:media` | media_type, purpose, url, alt, format, dimensions | Images, videos, documents (see 5.3) |
 
 Custom schemas use URI format: `https://example.com/schemas/my-type`
+
+### 5.2.1 FAQ Schema (`aidp:faq`)
+
+A single FAQ content item MAY contain multiple Q&A pairs. Two formats are supported:
+
+**Recommended — `items[]` container** (group multiple Q&A pairs as a single content item):
+
+```json
+{
+  "id": "general-faq",
+  "type": "faq",
+  "data": {
+    "title": "General questions",
+    "items": [
+      { "question": "What is your return policy?", "answer": "30 days, full refund." },
+      { "question": "Do you ship internationally?", "answer": "Yes, to 40+ countries." }
+    ]
+  }
+}
+```
+
+**Legacy — single `question` / `answer`** (one Q&A per content item, kept for backward compatibility):
+
+```json
+{
+  "id": "return-policy-faq",
+  "type": "faq",
+  "data": {
+    "question": "What is your return policy?",
+    "answer": "30 days, full refund."
+  }
+}
+```
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `title` | `string` | No | Optional group title (e.g., "Shipping", "Returns") |
+| `items[]` | `array` | Either `items[]` or `question`+`answer` is required | List of Q&A pairs |
+| `items[].question` | `string` | Yes (within item) | The question text |
+| `items[].answer` | `string` | Yes (within item) | The answer text. Markdown is permitted |
+| `question` | `string` | Legacy single-pair only | The question text |
+| `answer` | `string` | Legacy single-pair only | The answer text. Markdown is permitted |
+
+Consumers MUST handle both formats. When projecting to Schema.org, both forms map to `FAQPage` → `mainEntity[]` of `Question` / `Answer`.
 
 ### 5.3 Media Schema (`aidp:media`)
 
@@ -1335,7 +1423,7 @@ The simplest integration. The AIDP document is exposed as a read-only MCP Resour
     {
       "uri": "aidp://entity/daan-clinic-pdx",
       "mimeType": "application/aidp+json",
-      "text": "{ \"$aidp\": \"0.3.0\", \"entity\": { ... }, ... }"
+      "text": "{ \"$aidp\": \"0.1.0\", \"entity\": { ... }, ... }"
     }
   ]
 }
@@ -1425,7 +1513,7 @@ For entities with large content sets, expose query tools that return filtered AI
   "content": [
     {
       "type": "text",
-      "text": "{\"$aidp\":\"0.3.0\",\"entity\":{\"id\":\"urn:aidp:entity:sakura-ramen-pdx\",\"name\":{\"default\":\"Sakura Ramen\"},\"type\":\"business\"},\"verification\":{\"trust_level\":\"verified_domain\",\"trust_score\":0.72},\"content\":[{\"id\":\"menu-vegan-miso\",\"type\":\"menu_item\",\"data\":{\"name\":\"Vegan Miso Ramen\",\"price\":{\"currency\":\"USD\",\"amount\":15.00}}}],\"directives\":{\"identity\":{\"preferred_name\":\"Sakura Ramen\"},\"response_rules\":{\"must_include\":[\"Closed every Wednesday\"],\"must_not_say\":[\"We do not offer delivery\"],\"tone\":\"friendly\"}}}"
+      "text": "{\"$aidp\":\"0.1.0\",\"entity\":{\"id\":\"urn:aidp:entity:sakura-ramen-pdx\",\"name\":{\"default\":\"Sakura Ramen\"},\"type\":\"business\"},\"verification\":{\"trust_level\":\"verified_domain\",\"trust_score\":0.72},\"content\":[{\"id\":\"menu-vegan-miso\",\"type\":\"menu_item\",\"data\":{\"name\":\"Vegan Miso Ramen\",\"price\":{\"currency\":\"USD\",\"amount\":15.00}}}],\"directives\":{\"identity\":{\"preferred_name\":\"Sakura Ramen\"},\"response_rules\":{\"must_include\":[\"Closed every Wednesday\"],\"must_not_say\":[\"We do not offer delivery\"],\"tone\":\"friendly\"}}}"
     }
   ]
 }
@@ -1453,7 +1541,7 @@ MCP servers hosting AIDP data SHOULD declare their AIDP capability in the server
   },
   "protocolExtensions": {
     "aidp": {
-      "version": "0.3.0",
+      "version": "0.1.0",
       "entities": ["urn:aidp:entity:sakura-ramen-pdx"],
       "features": ["directives", "verification", "vc_credential"]
     }
@@ -2196,11 +2284,15 @@ A complete AIDP document for a restaurant:
         "name": "Business Hours",
         "availability": {
           "schedule": [
-            { "day": "mon", "hours": "11:30-14:30, 17:00-21:30" },
-            { "day": "tue", "hours": "11:30-14:30, 17:00-21:30" },
+            { "day": "mon", "hours": "11:30-14:30" },
+            { "day": "mon", "hours": "17:00-21:30" },
+            { "day": "tue", "hours": "11:30-14:30" },
+            { "day": "tue", "hours": "17:00-21:30" },
             { "day": "wed", "status": "closed" },
-            { "day": "thu", "hours": "11:30-14:30, 17:00-21:30" },
-            { "day": "fri", "hours": "11:30-14:30, 17:00-22:00" },
+            { "day": "thu", "hours": "11:30-14:30" },
+            { "day": "thu", "hours": "17:00-21:30" },
+            { "day": "fri", "hours": "11:30-14:30" },
+            { "day": "fri", "hours": "17:00-22:00" },
             { "day": "sat", "hours": "11:00-22:00" },
             { "day": "sun", "hours": "11:00-21:00" }
           ]
@@ -2285,18 +2377,18 @@ A complete AIDP document for a restaurant:
 
 ---
 
-## 14. Roadmap
+## 14. Roadmap (Post v0.1)
 
 - [ ] **v0.1.1**: Redirect proxy tracking parameter standardization (9.6.1) and link_redirects/link_clicks behavior specification
-- [ ] **v0.1.x**: Platform verification (OAuth and meta tag verification) for third-party link trust
-- [ ] **v0.1.x**: Real-time content push (WebSocket / SSE for live updates)
-- [ ] **v0.1.x**: Agent feedback loop (agent reports stale/incorrect content back to platform)
-- [ ] **v0.2**: Activate C2PA provenance field (Section 4.4.3) for media authentication
-- [ ] **v0.2**: Cryptographic content signing per-content-item
-- [ ] **v0.3**: Marketplace layer (premium directives, analytics for content providers)
-- [ ] **v0.3**: Projection plugin system (third parties can register custom output formats)
-- [ ] **v0.4**: Dispute reputation system (disputer track record affects dispute weight)
-- [ ] **v0.4**: Automated dispute resolution via multi-source consensus
+- [ ] **v0.2**: Platform verification (OAuth and meta tag verification) for third-party link trust
+- [ ] **v0.2**: Real-time content push (WebSocket / SSE for live updates)
+- [ ] **v0.2**: Agent feedback loop (agent reports stale/incorrect content back to platform)
+- [ ] **v0.3**: Activate C2PA provenance field (Section 4.4.3) for media authentication
+- [ ] **v0.3**: Cryptographic content signing per-content-item
+- [ ] **v0.4**: Marketplace layer (premium directives, analytics for content providers)
+- [ ] **v0.4**: Projection plugin system (third parties can register custom output formats)
+- [ ] **v0.5**: Dispute reputation system (disputer track record affects dispute weight)
+- [ ] **v0.5**: Automated dispute resolution via multi-source consensus
 - [ ] **v1.0**: Stable release with reference implementation + VC/DID fully active
 
 ---

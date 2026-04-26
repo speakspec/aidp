@@ -153,6 +153,15 @@ curl https://api.speakspec.com/api/entities/{entityId} \
 | GET | `/api/entities/{id}/analytics/agents` | read |
 | GET | `/api/entities/{id}/analytics/content` | read |
 | GET | `/api/entities/{id}/analytics/links` | read |
+| GET | `/api/entities/{id}/analytics/hourly` | read |
+| GET | `/api/entities/{id}/analytics/sources` | read |
+| GET | `/api/entities/{id}/analytics/countries` | read |
+| GET | `/api/entities/{id}/analytics/performance` | read |
+| GET | `/api/entities/{id}/analytics/mcp-tools` | read |
+| GET | `/api/entities/{id}/analytics/bot-vs-human` | read |
+| GET | `/api/entities/{id}/analytics/visitors` | read |
+| GET | `/api/entities/{id}/analytics/referrers` | read |
+| GET | `/api/entities/{id}/analytics/link-daily` | read |
 
 ### Import / Export
 

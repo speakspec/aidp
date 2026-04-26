@@ -6,7 +6,8 @@ MCP（Model Context Protocol）是讓 AI Agent 存取外部資料的標準協定
 
 - 單一端點：`POST /mcp`
 - 使用 JSON-RPC 2.0 協定
-- 不需要認證
+- **公開模式**：免認證，可使用 `aidp_query` / `aidp_entity_info` 與所有 resource 端點
+- **認證模式**：以 `X-API-Key` header 傳送 API key，解鎖 50 個實體作用域工具，涵蓋 REST API 的所有讀寫能力
 
 ## 兩種存取模式
 
@@ -87,6 +88,45 @@ AIDP 文件作為 MCP Resource 公開，適合需要瀏覽和讀取結構化資�
 }
 ```
 
+## 認證模式（X-API-Key）
+
+在 MCP 請求的 HTTP header 加入 `X-API-Key: aidp_...`，即可解鎖 50 個實體作用域工具。工具會自動綁定到 API key 對應的 entity — 不需要（也不應該）在 arguments 傳入 `entity_id`。
+
+### Claude Desktop 整合
+
+在 `~/Library/Application Support/Claude/claude_desktop_config.json`：
+
+```json
+{
+  "mcpServers": {
+    "speakspec": {
+      "url": "https://api.speakspec.com/mcp",
+      "headers": { "X-API-Key": "aidp_YOUR_KEY_HERE" }
+    }
+  }
+}
+```
+
+重啟 Claude Desktop 後即可直接以自然語言操作：「幫我把『關於我們』改成強調永續經營並發布」。
+
+### Scope 規則
+
+| API key scope | 可呼叫工具類別 |
+|---|---|
+| `read` | 所有以 `aidp_*_get`、`aidp_*_list`、`aidp_output_*`、`aidp_analytics_*`、`aidp_entity_summary`、`aidp_search_own_entity`、`aidp_export` 為名的 read 工具 |
+| `write` | 所有 read 工具 + create / update / delete / publish / lock / import 等寫入工具 |
+
+如以 `read` key 呼叫 write 工具，MCP 會回傳 JSON-RPC error code `-32002`（INSUFFICIENT_SCOPE）。
+
+### Rate Limit
+
+- 公開呼叫（無 header）：60 req/min per IP
+- 認證呼叫：300 req/min per API key
+
+### 工具清單對照（REST ↔ MCP）
+
+完整 50 個工具與 REST 路徑的對照表見 [API 參考：MCP](/api/mcp)。
+
 ## Content Negotiation
 
 透過 Accept header 可指定回傳格式：
@@ -100,4 +140,5 @@ AIDP 文件作為 MCP Resource 公開，適合需要瀏覽和讀取結構化資�
 
 - 每次 MCP 呼叫自動記錄 AI 曝光
 - Agent 可透過 User-Agent header 識別
+- 公開呼叫記為 `source=mcp`，認證呼叫記為 `source=api_key_mcp`（與公開 agent 曝光分開統計）
 - 曝光資料可在 [SpeakSpec 儀表板](/guide/speakspec-guide) 中檢視
