@@ -193,8 +193,8 @@ Describes **who** is publishing this content.
 |---|---|---|---|
 | `id` | `string` | ✅ | Globally unique URN (`urn:aidp:entity:{slug}`) or DID (see 4.4) |
 | `type` | `enum` | ✅ | `organization` · `business` · `government` · `academic` · `media` · `individual` · `bot` |
-| `name` | `LocalizedString` | ✅ | Display name(s), keyed by locale |
-| `description` | `LocalizedString` | ❌ | Short description |
+| `name` | `string \| LocalizedString` | ✅ | Display name. May be bare string (shorthand for `{default: ...}`) or LocalizedString object |
+| `description` | `string \| LocalizedString` | ❌ | Short description |
 | `domain` | `string` | ❌ | Primary domain (used for DNS verification) |
 | `locale` | `string` | ✅ | Primary locale (BCP 47) |
 | `category` | `string[]` | ❌ | Free-form category tags |
