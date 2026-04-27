@@ -4,6 +4,8 @@
 
 Base URL: `https://api.speakspec.com`
 
+> **v0.2.0 變更：** `name` 與 `description` 欄位現可為 bare string（等同 `{default: ...}`）或 object。SDK consumer 須升級 schema validation 以接受兩種形式。詳見 spec §3.3。
+
 ## 端點分類
 
 | 分類 | 路徑前綴 | 認證 |
