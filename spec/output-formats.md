@@ -30,6 +30,16 @@ AIDP 文件作為**單一事實來源**，可以投影為多種輸出格式。�
 | REST API | 完整 | 完整 | 完整 |
 | HTML Microdata | 映射 | 無 | 無 |
 
+**Projection 的 LocalizedString 解析：** 當 projection 把 AIDP 文件輸出為單一字串格式（Schema.org `name`、Open Graph `og:title`、llms.txt heading），使用 §3.3 的解析演算法：
+
+```
+function resolve(value, locale):
+  if typeof value === "string": return value
+  return value[locale] ?? value["default"]
+```
+
+Aggregator endpoint（`.well-known/aidp-directory.json`、`/public/search`）為了向後相容 MAY 將輸出 normalize 為 object 形式。
+
 ## Schema.org / JSON-LD 投影
 
 ### Entity 映射
