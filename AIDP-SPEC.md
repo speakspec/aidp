@@ -1727,6 +1727,12 @@ When consuming content that uses the variant mechanism (Section 5.4):
 4. **Fallback to base:** If no variant matches the user's region, use the base content's `data`
 5. **Cross-reference:** Agents MAY inform users that variants exist for other regions when relevant (e.g., user asks "Is this available in Japan?")
 
+### 9.9 Handling Polymorphic LocalizedString
+
+Agents MUST accept both forms of `LocalizedString` (bare string and object form, see §3.3) on input. When resolving a value for a target locale, agents apply the algorithm in §3.3.
+
+For projections (§11), agents MUST preserve the original form when emitting AIDP JSON, but MAY canonicalize to a single-string form for output formats that require it (Schema.org `name`, Open Graph `og:title`, llms.txt headings).
+
 ---
 
 ## 10. Community Integrity
