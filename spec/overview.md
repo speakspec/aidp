@@ -4,6 +4,8 @@ description: AIDP 協議規範總覽，定義結構化資訊格式與 AI Agent �
 
 # 總覽
 
+> **關於版本範例：** 本站範例中出現的 `$aidp` 版本字串（如 `"0.1.0"`）為示意值；當前 spec 版本以 [CHANGELOG](./changelog.md) 與 [AIDP-SPEC.md](https://github.com/speakspec/aidp/blob/main/AIDP-SPEC.md) frontmatter 為準。
+
 > **Version:** 0.1.0
 > **Status:** Released
 > **License:** CC-BY-4.0 (spec text)
