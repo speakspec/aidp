@@ -111,7 +111,7 @@ Entity 代表一個組織、品牌、人物或產品。每個 entity 有唯一�
 
 ### 如何找到自己已建立的 entity？
 
-登入後 Dashboard 首頁即為你的 entity。每個帳號同時只會綁定一個 entity（自己建立的或被邀請加入的），不需要切換。
+登入後 Dashboard 首頁即為你的 entity。
 
 ### 已經有自己的 entity，可以再被邀請加入別人的團隊嗎？
 
