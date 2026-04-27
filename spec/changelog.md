@@ -6,6 +6,22 @@ description: AIDP 協議各版本的詳細變更紀錄
 
 所有協議版本的變更紀錄。遵循 [Semantic Versioning](https://semver.org/)。
 
+## v0.2.0 (2026-04-28)
+
+### Changed
+
+- **`LocalizedString` 欄位（`name`、`description`）現可接受 bare string 或既有 `{default, [locale]: ...}` object 形式。** Bare string 等同 `{default: <string>}` 的 shorthand。詳見 §3.3。
+- 實作 MUST 處理兩種形式（§9 agent behavior）。
+- Projection 透過 `value[locale] ?? value.default` 解析 LocalizedString（§11）。
+
+### Fixed
+
+- Search trigger 現在 index `name` 的所有 locale 值，不只 `default` — 多語 entity 現在在非 default locale 也搜得到。
+
+### Migration
+
+既有 v0.1.0 entity（全為 object 形式）不受影響。新 entity 可使用任一形式。Aggregator endpoint（`.well-known/aidp-directory.json`、`/public/search`）持續輸出 object 形式以保持向後相容。
+
 ## v0.1.0 (2026-04-23)
 
 AIDP 協議首次公開發布。
