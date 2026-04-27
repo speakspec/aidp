@@ -76,8 +76,8 @@
 |---|---|---|---|
 | `id` | `string` | 是 | 全域唯一 URN (`urn:aidp:entity:{slug}`) 或 DID (參見 [4.4](/spec/verification#44)) |
 | `type` | `enum` | 是 | `organization` · `business` · `government` · `academic` · `media` · `individual` · `bot` |
-| `name` | `LocalizedString` | 是 | 顯示名稱，依語系索引 |
-| `description` | `LocalizedString` | 否 | 簡短描述 |
+| `name` | `string \| LocalizedString` | 是 | 顯示名稱。可為 bare string（等同 `{default: ...}` shorthand）或 LocalizedString 物件 |
+| `description` | `string \| LocalizedString` | 否 | 簡短描述 |
 | `domain` | `string` | 否 | 主要網域 (用於 DNS 驗證) |
 | `locale` | `string` | 是 | 主要語系 (BCP 47) |
 | `category` | `string[]` | 否 | 自由格式分類標籤 |
@@ -150,17 +150,27 @@ Entity 可以宣告與其他 AIDP 註冊 Entity 之間的關係。這些是**單
 
 ## 3.3 LocalizedString
 
-任何人類可讀的字串欄位都可以進行本地化：
+`LocalizedString` 可為以下兩種形式之一：
+
+(a) Bare string — 等同 `{ "default": <string> }` 的 shorthand
+(b) 物件，必要 `"default"` key 加選用的 locale key（BCP 47）
+
+範例：
 
 ```json
-{
-  "default": "Primary language content",
-  "ja": "日本語コンテンツ",
-  "zh-TW": "繁體中文內容"
-}
+"name": "SpeakSpec"
+"name": { "default": "Daan United Clinic", "zh-TW": "大安聯合診所", "ja": "大安連合クリニック" }
 ```
 
-`default` 鍵為必填。Agent 應使用與終端使用者語言相符的語系，若無匹配則回退至 `default`。
+解析演算法（agent 需取得當下 locale 的單一字串時）：
+
+```
+function resolve(value, locale):
+  if typeof value === "string": return value
+  return value[locale] ?? value["default"]
+```
+
+實作 MUST 接受兩種形式。實作 SHOULD 在 round-trip 時保留原形式。
 
 ## 3.4 Links
 
