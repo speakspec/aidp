@@ -103,7 +103,7 @@ Entity 代表一個組織、品牌、人物或產品。每個 entity 有唯一�
 
 ### 一個帳號可以建幾個 entity？
 
-依方案而定：Free 通常 1 個，Pro 較多，Enterprise 可客製。實際數量請見 Dashboard → 設定 → 方案。
+每個帳號 1 個，**不分方案**。如需經營多個品牌或子公司，請為每個 entity 註冊獨立帳號，再透過 Entity Relationships（`parent_organization` / `subsidiary`）建立關聯。
 
 ### 個人可以建 entity 嗎？
 
@@ -111,7 +111,7 @@ Entity 代表一個組織、品牌、人物或產品。每個 entity 有唯一�
 
 ### 如何找到自己已建立的 entity？
 
-登入後 Dashboard 首頁即為當前 entity。若有多個，可在左側切換器切換。
+登入後 Dashboard 首頁即為你的 entity。若你受邀加入其他 entity 的團隊，可在左側切換器切換到該 entity。
 
 ---
 
