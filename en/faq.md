@@ -41,10 +41,6 @@ Yes. The AIDP protocol version (currently `0.1.0`) is the spec version, written 
 
 Yes. The Free plan covers basic entity and content creation. Quota limits are listed on the [pricing page](https://speakspec.com/pricing).
 
-### What paid plans are available?
-
-There are three public plans — Free, Pro, Enterprise — plus a Beta plan (private) for early adopters. **Paid checkout is not yet active; displayed prices are indicative only**; Enterprise is provisioned manually by us.
-
 ### How do I upgrade or change plan?
 
 Go to [Pricing](https://speakspec.com/pricing) or Dashboard → Settings → Plan. Enterprise is requested via the [contact form](https://speakspec.com/contact).

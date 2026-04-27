@@ -41,10 +41,6 @@ AIDP 是**開放協議**（CC-BY-4.0）。SpeakSpec 是實作 AIDP 協議的商�
 
 可以。Free 方案提供基本建立 entity 與 content 的能力，額度限制請見 [方案頁面](https://speakspec.com/pricing)。
 
-### 付費方案有哪些？
-
-目前有 Free、Pro、Enterprise 三個公開方案，以及給早期使用者的 Beta 方案（不公開）。**目前尚未啟用付費金流，顯示的價格僅供參考**；Enterprise 由我們手動開通。
-
 ### 如何升級或更換方案？
 
 前往 [Pricing](https://speakspec.com/pricing) 或 Dashboard → 設定 → 方案。Enterprise 需透過 [聯絡表單](https://speakspec.com/contact) 申請。
