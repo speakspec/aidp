@@ -267,17 +267,25 @@ Entities can declare relationships to other AIDP-registered entities. These are 
 
 ### 3.3 LocalizedString
 
-Any human-readable string field can be localized:
+A `LocalizedString` MAY be either:
+
+(a) A bare string — shorthand for `{ "default": <string> }`.
+(b) An object with a required `"default"` key plus optional locale keys (BCP 47).
 
 ```json
-{
-  "default": "Primary language content",
-  "ja": "日本語コンテンツ",
-  "zh-TW": "繁體中文內容"
-}
+"name": "SpeakSpec"
+"name": { "default": "Daan United Clinic", "zh-TW": "大安聯合診所", "ja": "大安連合クリニック" }
 ```
 
-The `default` key is required. Agents SHOULD use the locale matching the end-user's language, falling back to `default`.
+Resolution algorithm (when an agent needs a single string for a target locale):
+
+```
+function resolve(value, locale):
+  if typeof value === "string": return value
+  return value[locale] ?? value["default"]
+```
+
+Implementations MUST accept both forms. Implementations SHOULD preserve the original form on round-trip.
 
 ### 3.4 Links
 
