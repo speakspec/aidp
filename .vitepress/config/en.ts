@@ -10,6 +10,7 @@ export const en: LocaleSpecificConfig<DefaultTheme.Config> = {
       { text: 'Spec', link: '/en/spec/overview', activeMatch: '/en/spec/' },
       { text: 'Developer', link: '/en/developer/integration', activeMatch: '/en/developer/' },
       { text: 'API Reference', link: '/en/api/', activeMatch: '/en/api/' },
+      { text: 'FAQ', link: '/en/faq', activeMatch: '/en/faq' },
       {
         text: 'SpeakSpec',
         items: [
