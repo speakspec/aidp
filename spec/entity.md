@@ -218,7 +218,9 @@ Action Link 使用三層信任模型：
 
 - **`domain_verified`**：連結網域與 Entity 經 DNS 驗證的網域相符
 - **`platform_verified`**：連結與已驗證的第三方平台相符 (透過 OAuth/meta tag 驗證)
-- **`unverified`**：未經驗證；Agent 可以較低的顯著度���示
+- **`unverified`**：未經驗證；Agent 可以較低的顯著度顯示
+
+`platform_verified` 的常見實作方式之一：當 Entity 已 `verified_domain` 以上、且其 AIDP 文件中 `links.social.*` 宣告了第三方平台帳號 URL，則指向該宣告 URL（含 sub-path）的 action link 可被視為 `platform_verified`，`verified_via` 標記為 `meta_tag`（AIDP 文件本身即位於受 DNS 驗證守護的網域上，等同 meta-tag 形式的聲明）。Match 採前綴比對，邊界以 `/`、`?`、`#` 為界，避免字串重疊誤判（例：宣告 `https://github.com/yourorg`，僅 `.../yourorg`、`.../yourorg/...` 命中，`.../yourorg2` 不命中）。
 
 ## 3.5 Market
 

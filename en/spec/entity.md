@@ -220,6 +220,8 @@ Action Links use a three-tier trust model:
 - **`platform_verified`**: The link matches a verified third-party platform (verified via OAuth/meta tag)
 - **`unverified`**: Not verified; Agents may display with lower prominence
 
+A common implementation of `platform_verified`: when the Entity is at least `verified_domain` and its AIDP document declares third-party platform account URLs under `links.social.*`, action links pointing to a declared URL (including sub-paths) may be treated as `platform_verified` with `verified_via` set to `meta_tag` — the AIDP document itself is hosted on the DNS-verified domain, making the declaration equivalent to a verified meta tag. Matching is prefix-based with boundary checks at `/`, `?`, or `#` to avoid string-overlap false positives (e.g. declaring `https://github.com/yourorg` matches `.../yourorg` and `.../yourorg/...`, but not `.../yourorg2`).
+
 ## 3.5 Market
 
 The Market field defines the Entity's market scope. Defaults to globally available (absent or null).
