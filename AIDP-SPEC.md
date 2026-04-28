@@ -2401,12 +2401,19 @@ A complete AIDP document for a restaurant:
 
 ---
 
-## 14. Roadmap (Post v0.1)
+## 14. Roadmap
 
-- [ ] **v0.1.1**: Redirect proxy tracking parameter standardization (9.6.1) and link_redirects/link_clicks behavior specification
-- [ ] **v0.2**: Platform verification (OAuth and meta tag verification) for third-party link trust
-- [ ] **v0.2**: Real-time content push (WebSocket / SSE for live updates)
-- [ ] **v0.2**: Agent feedback loop (agent reports stale/incorrect content back to platform)
+### Released
+
+- [x] **v0.2.0** (2026-04-28): Polymorphic LocalizedString — `name` / `description` accept either bare string or `{default, [locale]: ...}` object form. Search trigger now indexes all locale values of `name` (not just `default`).
+- [x] **v0.1.0** (2026-04-23): Initial public release — entity, verification, content, directives, transport, projections, community integrity.
+
+### Planned
+
+- [ ] **v0.2.x**: Redirect proxy tracking parameter standardization (9.6.1) and link_redirects/link_clicks behavior specification
+- [ ] **v0.2.x**: Platform verification (OAuth and meta tag verification) for third-party link trust
+- [ ] **v0.2.x**: Real-time content push (WebSocket / SSE for live updates)
+- [ ] **v0.2.x**: Agent feedback loop (agent reports stale/incorrect content back to platform)
 - [ ] **v0.3**: Activate C2PA provenance field (Section 4.4.3) for media authentication
 - [ ] **v0.3**: Cryptographic content signing per-content-item
 - [ ] **v0.4**: Marketplace layer (premium directives, analytics for content providers)
