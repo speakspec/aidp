@@ -111,6 +111,16 @@ AIDP 協定使用多個維度的分數來衡量 Entity 的可信度：
 
 分數越高，AI 系統越可能優先採用你的資訊。詳細的信任機制請見 [Verification 規範](/spec/verification)。
 
+### 提升 Action Link 的信任等級
+
+每條 Action Link（CTA 連結）會被自動標記三階信任等級之一：
+
+- **`domain_verified`**：URL 落在 Entity 已 DNS 驗證的域名底下，自動取得最高信任。
+- **`platform_verified`**：URL 指向 Entity 在 `links.social.*` 宣告過的第三方平台帳號（含其 sub-path）。**前提：Entity 至少已 `verified_domain`**，否則 social 宣告本身未受 DNS 驗證守護，不會被採信。
+- **`unverified`**：上述兩者都不符。AI agent 會用較低的顯著度呈現。
+
+**實務建議：** 如果你想讓社群連結（GitHub、Twitter/X、LinkedIn 等）也享有 verified 顯著度，先完成 DNS 驗證，再到 dashboard「實體編輯 → 連結」把社群帳號 URL 補齊。Backend 偵測到 `links.social` 變動會自動重算所有現有 Action Link 的信任等級，不需要你手動重建。
+
 ## 內容管理 {#content}
 
 內容是你透過 AIDP 協定向 AI 系統傳遞的核心資訊。

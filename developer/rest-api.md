@@ -21,6 +21,7 @@ Base URL: `https://api.speakspec.com`
 |---|---|---|
 | GET | `/public/entity/{aidpId}` | 取得 Entity 的完整 AIDP 文件 |
 | GET | `/public/entity/{aidpId}/content` | 查詢 Entity 的公開內容 |
+| GET | `/public/platforms` | 取得社群平台清單（`entity.links.social.*` 建議用的 platform key 與 url 範本） |
 | GET | `/.well-known/aidp-directory.json` | 所有已驗證 Entity 的索引 |
 
 ### 取得 AIDP 文件
