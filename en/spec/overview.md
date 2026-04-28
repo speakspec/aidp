@@ -6,7 +6,7 @@ description: AIDP protocol specification overview, defining structured informati
 
 > **About version examples:** `$aidp` version strings shown in examples (e.g. `"0.1.0"`) are illustrative. The current spec version is in [CHANGELOG](./changelog.md) and [AIDP-SPEC.md](https://github.com/speakspec/aidp/blob/main/AIDP-SPEC.md) frontmatter.
 
-> **Version:** 0.1.0
+> **Version:** 0.2.0
 > **Status:** Released
 > **License:** CC-BY-4.0 (spec text)
 
