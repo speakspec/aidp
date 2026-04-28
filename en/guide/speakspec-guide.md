@@ -111,6 +111,16 @@ The AIDP protocol uses multiple dimensions to measure an Entity's trustworthines
 
 Higher scores make AI systems more likely to prioritize your information. For details on the trust mechanism, see [Verification Specification](/en/spec/verification).
 
+### Upgrading Action Link trust
+
+Every Action Link (CTA) is automatically tagged with one of three trust levels:
+
+- **`domain_verified`**: The URL falls under your Entity's DNS-verified domain — the strongest signal.
+- **`platform_verified`**: The URL points to a third-party platform account that you declared under `links.social.*` (including its sub-paths). **Requires the Entity to be at least `verified_domain`** — otherwise the social declarations are unverified self-claims and are not trusted.
+- **`unverified`**: Neither of the above. AI agents will display these with reduced prominence.
+
+**Practical tip:** If you want your social links (GitHub, Twitter/X, LinkedIn, etc.) to share the verified prominence, finish DNS verification first, then go to the dashboard's *Entity → Links* section and fill in your social account URLs. The backend automatically recomputes the trust level of all existing Action Links whenever `links.social` changes, so you don't need to recreate them by hand.
+
 ## Content Management {#content}
 
 Content is the core information you deliver to AI systems through the AIDP protocol.

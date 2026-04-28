@@ -21,6 +21,7 @@ Public endpoints do not require authentication.
 |---|---|---|
 | GET | `/public/entity/{aidpId}` | Retrieve an Entity's full AIDP document |
 | GET | `/public/entity/{aidpId}/content` | Query an Entity's public content |
+| GET | `/public/platforms` | List of social platforms (recommended `platform key` + url template for `entity.links.social.*`) |
 | GET | `/.well-known/aidp-directory.json` | Index of all verified Entities |
 
 ### Retrieve AIDP document
