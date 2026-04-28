@@ -155,11 +155,24 @@ Entity 可以宣告與其他 AIDP 註冊 Entity 之間的關係。這些是**單
 (a) Bare string — 等同 `{ "default": <string> }` 的 shorthand
 (b) 物件，必要 `"default"` key 加選用的 locale key（BCP 47）
 
-範例：
+範例（單一全球品牌，bare string）：
 
 ```json
-"name": "SpeakSpec"
-"name": { "default": "Daan United Clinic", "zh-TW": "大安聯合診所", "ja": "大安連合クリニック" }
+{
+  "name": "SpeakSpec"
+}
+```
+
+範例（多語在地化，object 形式）：
+
+```json
+{
+  "name": {
+    "default": "Daan United Clinic",
+    "zh-TW": "大安聯合診所",
+    "ja": "大安連合クリニック"
+  }
+}
 ```
 
 解析演算法（agent 需取得當下 locale 的單一字串時）：

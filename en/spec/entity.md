@@ -155,11 +155,24 @@ A `LocalizedString` MAY be either:
 (a) A bare string — shorthand for `{ "default": <string> }`.
 (b) An object with a required `"default"` key plus optional locale keys (BCP 47).
 
-Examples:
+Example (single global brand, bare string):
 
 ```json
-"name": "SpeakSpec"
-"name": { "default": "Daan United Clinic", "zh-TW": "大安聯合診所", "ja": "大安連合クリニック" }
+{
+  "name": "SpeakSpec"
+}
+```
+
+Example (multi-locale, object form):
+
+```json
+{
+  "name": {
+    "default": "Daan United Clinic",
+    "zh-TW": "大安聯合診所",
+    "ja": "大安連合クリニック"
+  }
+}
 ```
 
 Resolution algorithm (when an agent needs a single string for a target locale):
