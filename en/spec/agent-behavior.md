@@ -113,3 +113,9 @@ When Content includes a `variant_of` field, the Agent MUST follow these rules:
 2. **Region priority**: If the user's region has a corresponding variant (matched via the variant's `market.regions`), prefer the merged variant data
 3. **Fallback**: If the base does not exist or has been deleted, treat `variant_delta` as complete data
 4. **Transparency**: The Agent SHOULD indicate in responses that the data comes from a variant rather than the base (e.g., "This is the Japan region specification")
+
+## Handling Polymorphic LocalizedString
+
+Agents MUST accept both forms of `LocalizedString` (bare string and object form, see §3.3) on input. When resolving a value for a target locale, agents apply the algorithm in §3.3.
+
+For projections (§11), agents MUST preserve the original form when emitting AIDP JSON, but MAY canonicalize to a single-string form for output formats that require it (Schema.org `name`, Open Graph `og:title`, llms.txt headings).

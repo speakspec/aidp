@@ -76,8 +76,8 @@ Describes **who published** the content.
 |---|---|---|---|
 | `id` | `string` | Yes | Globally unique URN (`urn:aidp:entity:{slug}`) or DID (see [4.4](/en/spec/verification#44)) |
 | `type` | `enum` | Yes | `organization` · `business` · `government` · `academic` · `media` · `individual` · `bot` |
-| `name` | `LocalizedString` | Yes | Display name, indexed by locale |
-| `description` | `LocalizedString` | No | Brief description |
+| `name` | `string \| LocalizedString` | Yes | Display name. May be bare string (shorthand for `{default: ...}`) or LocalizedString object |
+| `description` | `string \| LocalizedString` | No | Brief description |
 | `domain` | `string` | No | Primary domain (used for DNS verification) |
 | `locale` | `string` | Yes | Primary locale (BCP 47) |
 | `category` | `string[]` | No | Free-form category tags |
@@ -150,17 +150,40 @@ An Entity can declare relationships with other AIDP-registered Entities. These a
 
 ## 3.3 LocalizedString
 
-Any human-readable string field can be localized:
+A `LocalizedString` MAY be either:
+
+(a) A bare string — shorthand for `{ "default": <string> }`.
+(b) An object with a required `"default"` key plus optional locale keys (BCP 47).
+
+Example (single global brand, bare string):
 
 ```json
 {
-  "default": "Primary language content",
-  "ja": "日本語コンテンツ",
-  "zh-TW": "繁體中文內容"
+  "name": "SpeakSpec"
 }
 ```
 
-The `default` key is required. Agents should use the locale matching the end user's language, falling back to `default` if no match is found.
+Example (multi-locale, object form):
+
+```json
+{
+  "name": {
+    "default": "Daan United Clinic",
+    "zh-TW": "大安聯合診所",
+    "ja": "大安連合クリニック"
+  }
+}
+```
+
+Resolution algorithm (when an agent needs a single string for a target locale):
+
+```
+function resolve(value, locale):
+  if typeof value === "string": return value
+  return value[locale] ?? value["default"]
+```
+
+Implementations MUST accept both forms. Implementations SHOULD preserve the original form on round-trip.
 
 ## 3.4 Links
 

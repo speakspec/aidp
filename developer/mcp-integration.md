@@ -2,6 +2,8 @@
 
 MCP（Model Context Protocol）是讓 AI Agent 存取外部資料的標準協定。AIDP 平台提供完整的 MCP 端點，讓 AI Agent 能夠直接查詢 Entity 資料。
 
+> **v0.2.0 變更：** `name` 與 `description` 欄位現可為 bare string（等同 `{default: ...}`）或 object。SDK consumer 須升級 schema validation 以接受兩種形式。詳見 spec §3.3。
+
 ## MCP 端點
 
 - 單一端點：`POST /mcp`

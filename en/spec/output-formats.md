@@ -30,6 +30,16 @@ Each projection is **lossy by design** -- only the AIDP JSON carries the complet
 | REST API | Full | Full | Full |
 | HTML Microdata | Mapped | None | None |
 
+**LocalizedString resolution for projections:** When projecting an AIDP document to a single-string output format (Schema.org `name`, Open Graph `og:title`, llms.txt heading), apply the resolve algorithm from §3.3:
+
+```
+function resolve(value, locale):
+  if typeof value === "string": return value
+  return value[locale] ?? value["default"]
+```
+
+Aggregator endpoints (`.well-known/aidp-directory.json`, `/public/search`) MAY normalize to object form for backward compatibility.
+
 ## Schema.org / JSON-LD Projection
 
 ### Entity Mapping

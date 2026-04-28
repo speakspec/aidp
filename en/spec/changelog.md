@@ -6,6 +6,22 @@ description: Detailed changelog for each version of the AIDP protocol
 
 Changelog for all protocol versions. Follows [Semantic Versioning](https://semver.org/).
 
+## v0.2.0 (2026-04-28)
+
+### Changed
+
+- **LocalizedString fields (`name`, `description`) now accept either a bare string or the existing `{default, [locale]: ...}` object form.** Bare string is shorthand for `{default: <string>}`. See §3.3.
+- Implementations MUST handle both forms (§9 agent behavior).
+- Projections resolve LocalizedString via `value[locale] ?? value.default` (§11).
+
+### Fixed
+
+- Search trigger now indexes all locale values of `name`, not just `default` — multi-locale entities are now findable in non-default locales.
+
+### Migration
+
+Existing v0.1.0 entities (all use object form) are unchanged. New entities MAY use either form. Aggregator endpoints (`.well-known/aidp-directory.json`, `/public/search`) continue to emit object form for backward compatibility.
+
 ## v0.1.0 (2026-04-23)
 
 Initial public release of the AIDP protocol.

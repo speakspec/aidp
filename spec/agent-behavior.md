@@ -113,3 +113,9 @@ AIDP 重導向代理 MAY 在目標 URL 後附加以下查詢參數，以實現�
 2. **地區優先**：若使用者所在地區有對應 variant（透過 variant 的 `market.regions` 匹配），優先使用合併後的 variant 資料
 3. **fallback**：若 base 不存在或已刪除，將 `variant_delta` 視為完整資料使用
 4. **透明性**：Agent SHOULD 在回應中標註資料來源是 variant 而非 base（例如「此為日本地區規格」）
+
+## Polymorphic LocalizedString 處理
+
+Agent MUST 接受兩種形式的 `LocalizedString`（bare string 與 object，見 §3.3）。當 agent 需要為特定 locale 取得單一字串時，套用 §3.3 的演算法。
+
+對 projection（§11），agent MUST 在輸出 AIDP JSON 時保留原形式，但對需要單字串的輸出格式（Schema.org `name`、Open Graph `og:title`、llms.txt heading）MAY canonicalize 為單字串。

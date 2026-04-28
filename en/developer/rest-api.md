@@ -4,6 +4,8 @@ Third-party developers can access AIDP data through SpeakSpec's HTTP API. All en
 
 Base URL: `https://api.speakspec.com`
 
+> **v0.2.0 change:** `name` and `description` fields now accept either bare string (shorthand for `{default: ...}`) or object. SDK consumers must update schema validation to handle both forms. See spec §3.3.
+
 ## Endpoint Categories
 
 | Category | Path Prefix | Auth |

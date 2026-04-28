@@ -2,6 +2,8 @@
 
 MCP (Model Context Protocol) is the standard protocol for AI Agents to access external data. The AIDP platform provides a full MCP endpoint, enabling AI Agents to query Entity data directly.
 
+> **v0.2.0 change:** `name` and `description` fields now accept either bare string (shorthand for `{default: ...}`) or object. SDK consumers must update schema validation to handle both forms. See spec §3.3.
+
 ## MCP Endpoint
 
 - Single endpoint: `POST /mcp`
