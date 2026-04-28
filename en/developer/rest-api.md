@@ -41,7 +41,9 @@ curl https://api.speakspec.com/public/entity/sakura-ramen-pdx \
 | `application/json` (default) | AIDP JSON |
 | `application/ld+json` | Schema.org JSON-LD |
 | `text/markdown` | llms.txt |
-| `text/html` | Open Graph HTML |
+| `text/html` | Self-documenting HTML page (with OpenGraph meta) |
+
+**About the `text/html` response:** Browser visitors receive a self-documenting HTML page that contains the OpenGraph meta tags plus a short developer-facing explanation, including a curl example and a link to the SpeakSpec public page. The page makes it explicit that the URL is a machine-readable AIDP feed. Unfurl bots from Facebook / Twitter / Slack still pick up the OG metadata from `<head>`. **This endpoint is designed for machine consumption**; human visitors should use [`speakspec.com/entity/{aidpId}`](https://speakspec.com/entity/) for the full dashboard public page.
 
 ### Query content
 
