@@ -41,7 +41,9 @@ curl https://api.speakspec.com/public/entity/sakura-ramen-pdx \
 | `application/json`（預設） | AIDP JSON |
 | `application/ld+json` | Schema.org JSON-LD |
 | `text/markdown` | llms.txt |
-| `text/html` | Open Graph HTML |
+| `text/html` | 自說明 HTML 頁（含 OpenGraph meta） |
+
+**關於 `text/html` 回應：** 瀏覽器訪客會收到一個包含 OpenGraph meta tags 與簡短 dev-friendly 說明的自說明 HTML 頁，內容明確標示「這是機器讀取用的 AIDP feed」，並提供 curl 範例與 SpeakSpec 公開頁面的連結。Facebook / Twitter / Slack 等 unfurl bot 仍能正常從 `<head>` 抓取 OG metadata。**這個 endpoint 設計給機器消費**；人類使用者請改去 [`speakspec.com/entity/{aidpId}`](https://speakspec.com/entity/) 看完整的 dashboard 公開頁。
 
 ### 查詢內容
 
