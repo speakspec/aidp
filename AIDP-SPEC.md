@@ -1869,6 +1869,12 @@ Where:
 
 The score is a `float` between 0 and 1. Implementations MAY use different weighting formulas but MUST expose the `integrity_score` value.
 
+**Null semantics.** `integrity_score` MAY be `null` when insufficient community data exists to compute a meaningful score (typically when `disputes.total = 0` and no interaction history has accumulated). `null` is distinct from the float value `0`:
+
+- `null` — no signal yet; agents SHOULD NOT treat as negative; rely on `trust_score` for trust decisions
+- `0.0` (float) — computed minimum; explicitly indicates very low integrity (e.g., repeated unresolved disputes)
+- `> 0.0` (float, range [0, 1]) — computed score; use per the rules above
+
 ### 10.3 Three-Dimensional Trust Model
 
 AIDP exposes three independent trust dimensions to AI agents:
