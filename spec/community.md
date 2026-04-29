@@ -132,6 +132,12 @@ integrity_score = f(consistency_score, dispute_ratio, response_rate, content_fre
 
 分數為 0 到 1 之間的 `float`。實作方可使用不同的加權公式，但必須公開 `integrity_score` 值。
 
+**Null 語意。** 當社群資料不足以計算有意義的分數時，`integrity_score` 可能為 `null`（通常出現在 `disputes.total = 0` 且尚未累積互動歷史的情況）。`null` 與 float 值 `0` 不同：
+
+- `null` -- 尚無訊號；Agent 不應視為負面訊號，應改以 `trust_score` 作為信任判斷依據
+- `0.0` (float) -- 已計算的最低分；明確表示完整性極低（例如多次未解決的爭議）
+- `> 0.0` (float, 範圍 [0, 1]) -- 已計算分數；依上述規則使用
+
 ## 三維信任模型
 
 AIDP 向 AI 代理揭露三個獨立的信任維度：
