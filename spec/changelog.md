@@ -6,6 +6,49 @@ description: AIDP 協議各版本的詳細變更紀錄
 
 所有協議版本的變更紀錄。遵循 [Semantic Versioning](https://semver.org/)。
 
+## v0.3.0 (尚未釋出，RFC 草案)
+
+> **狀態：** 在 `feat/v0.3-pki-spec` branch 草擬中，尚未 release 也尚未 tag。
+
+### Added
+
+- **三層解耦設計原則**（§1.1）— Transport（內容在哪）、Verification（內容真不真）、Consumption（AI 怎麼用）三層獨立，agent 可任意組合。
+- **加密簽章 `_proof`（§4.8）**— 由 trust provider 對 directive 內容簽章；可選用，不強制。支援 `ed25519-jws`，可同時帶多個簽章（`_proofs[]`）。
+- **Content Endpoint Transport（§8.7）**— `/.well-known/aidp/content/{id}.json` 回傳完整 `Content` 物件（body + media + directives + 簽章），讓 AI 透過 AIDP 通道取得內容，無須 parse HTML body。
+- **Content Directory（§8.8）**— `/.well-known/aidp/content/` 列出 entity 全部內容的分頁索引，AIDP 層的 `sitemap.xml`。
+- **Inline Embedding（§8.9）**— `<script type="application/aidp+json">` 內嵌於 HTML。兩種模式：`ContentPointer`（預設，約 600 bytes）與完整 `Content`（opt-in，2–4 KB）。皆帶 `_proof`。
+- **Webhook Cache Invalidation（§8.10）**— `POST {site}/api/_aidp/invalidate`，HMAC + replay 防護。單一規範 event `directive.updated`，靠 `scope: entity | content` 區分。
+- **Public Key JWKS Endpoint（§8.11）**— `{trust_provider}/.well-known/aidp-keys` 提供簽章公鑰；標準 JWKS 格式，`OKP/Ed25519`。
+- **Canonical Verification Endpoint（§8.12）**— `{trust_provider}/v/{eid}/{cid}` 回傳極小 `VerificationResponse`（`valid`、`revoked`、`current_version`），刻意不可 cache。
+- **Revocation List（§8.13）**— `{trust_provider}/.well-known/aidp-revocation` 列出已撤銷的 entity / content / 簽章 key，cacheable 1 小時。
+- **HTML link relations（§8.5）**— 新增 `aidp-content`（per-page 對應）與 `aidp-keys`（JWKS 指標）。
+- **Endpoint Preference 行為（§9.1.1）**— 當 `<link rel="aidp-content">` 存在時，agent SHOULD 優先 fetch Content Endpoint，不該 parse HTML body。
+- **Verification 行為（§9.10）**— 規範 JWKS fetch / 簽章驗證 / canonical lookup 流程；驗證失敗 degrade trust，不 reject payload。
+- **Content Endpoint 到 Schema.org Projection（§11.8）**— 將 v0.3 Content endpoint 投影成 Schema.org `Article` 的 mapping 表，方便 SEO 重用。
+- **JSON Schema artifact** `public/schema/v0.3.0.json`，含 `Proof`、`Content`、`ContentPointer`、`ContentDirectory`、`VerificationResponse`、`TrustProviderKeys`、`RevocationList`、`WebhookInvalidation` 的 `$defs`。
+
+### Changed
+
+- Transport priority list（§8.6）重排：新增的 Content Endpoint 插在第 3 位於 Static file 之前；Inline embedding 列入 discovery tier 底部；Verification endpoints（§8.11–8.13）與 priority list 正交。
+- §9.1 Processing Order step 3 同時 reference `_proof` 與既有 `credential` 驗證。
+- §4.7.1 platform field table 新增 optional `attestation_url`（entity 層驗證查詢，與 per-payload `_proof.canonical_url` 互補）。
+- §8.7 Content Endpoint envelope 明確為 §5 Content 的 superset，新增 §8.7.1 field reference 列出 endpoint-specific 欄位（`url`、`title`、`language`、`published_at`、`version`、`author`、`media`、`links`、`verification`、`_proof`）。
+- v0.3 timestamp 欄位名與 §5.1 對齊：endpoints / pointers / signed fields 統一用 `updated_at`（RFC 草案初版誤用 `modified_at`，release 前已修正）。
+
+### Backward Compatibility
+
+- v0.3 所有新增都是 **additive**。v0.2 payload 仍然是合法的 v0.3 文件。
+- v0.2 client 看到 `_proof` 該按 §1.1（"Backwards-compatible evolution"）忽略未知欄位，不應 fail parsing。
+- `verification.platform` 欄位於 v0.2 已存在（§4.7）；v0.3 增加 optional `attestation_url` 子欄位。
+
+### Migration
+
+無 breaking change。既有 v0.2 entity directive `/.well-known/aidp.json` 仍 valid。新可選欄位：
+
+- 等 trust provider 簽章機制就緒後，將 `_proof` 加到 entity directive
+- 準備好暴露 AI 通道時，按 `/.well-known/aidp/content/{id}.json` 發佈 per-content endpoint
+- 在 article / product 頁加 `<link rel="aidp-content">` 與 `<link rel="aidp-keys">`
+
 ## v0.2.0 (2026-04-28)
 
 ### Changed
