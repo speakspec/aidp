@@ -2032,10 +2032,37 @@ A trust provider that issues `_proof` signatures (§4.8) MUST publish its public
       "alg": "EdDSA",
       "valid_from": "2026-04-01T00:00:00Z",
       "valid_until": "2026-09-30T23:59:59Z"
+    },
+    {
+      "kid": "speakspec-2026-Q1",
+      "kty": "OKP",
+      "crv": "Ed25519",
+      "x": "base64url-encoded-public-key",
+      "use": "sig",
+      "alg": "EdDSA",
+      "valid_from": "2026-01-01T00:00:00Z",
+      "valid_until": "2026-06-30T23:59:59Z",
+      "rotation": "scheduled"
     }
   ]
 }
 ```
+
+**Per-key fields:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `kid` | `string` | ✅ | Key identifier; matches `_proof.key_id` (§4.8.1) |
+| `kty` | `string` | ✅ | Key type; `OKP` for Ed25519 |
+| `crv` | `string` | ✅ | Curve; `Ed25519` |
+| `x` | `string` | ✅ | Public key encoded as unpadded base64url (RFC 4648 §5) of the raw 32-byte value |
+| `use` | `string` | ✅ | Always `sig` |
+| `alg` | `string` | ✅ | Always `EdDSA` |
+| `valid_from` | `string` (ISO 8601) | ✅ | Start of signing validity window |
+| `valid_until` | `string` (ISO 8601) | ✅ | End of signing validity window |
+| `rotation` | `string` | optional | Set on keys currently being phased out: `scheduled` (planned rotation) or `emergency` (compromise-driven). Absent on a steady-state active key |
+
+Revoked keys MUST be omitted from this response; agents discover revocations via §8.13.
 
 **HTTP behavior:**
 
