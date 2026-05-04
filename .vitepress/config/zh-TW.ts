@@ -74,6 +74,7 @@ export const zhTW: LocaleSpecificConfig<DefaultTheme.Config> = {
             { text: '整合總覽', link: '/developer/integration' },
             { text: 'MCP 整合', link: '/developer/mcp-integration' },
             { text: 'REST API 串接', link: '/developer/rest-api' },
+            { text: 'Nuxt SDK', link: '/developer/sdk-nuxt' },
             { text: '靜態檔案部署', link: '/developer/static-file' },
             { text: '匯入匯出格式', link: '/developer/import-export' },
           ],

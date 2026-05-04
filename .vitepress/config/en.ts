@@ -74,6 +74,7 @@ export const en: LocaleSpecificConfig<DefaultTheme.Config> = {
             { text: 'Integration Overview', link: '/en/developer/integration' },
             { text: 'MCP Integration', link: '/en/developer/mcp-integration' },
             { text: 'REST API Integration', link: '/en/developer/rest-api' },
+            { text: 'Nuxt SDK', link: '/en/developer/sdk-nuxt' },
             { text: 'Static File Deployment', link: '/en/developer/static-file' },
             { text: 'Import & Export Format', link: '/en/developer/import-export' },
           ],
