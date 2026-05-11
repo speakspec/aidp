@@ -23,7 +23,11 @@ jobs:
           fetch-depth: 0
       - uses: pnpm/action-setup@v4
         with:
-          version: latest
+          # Pin to pnpm 10. pnpm 11 enables strict build-script policy
+          # (ERR_PNPM_IGNORED_BUILDS) and ignores package.json's
+          # onlyBuiltDependencies allow-list under "latest" defaults,
+          # which breaks the esbuild postinstall vitepress needs.
+          version: 10
       - uses: actions/setup-node@v4
         with:
           # pnpm 11 requires Node 22.13+; otherwise pnpm crashes with
