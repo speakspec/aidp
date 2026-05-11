@@ -6,9 +6,9 @@ description: Detailed changelog for each version of the AIDP protocol
 
 Changelog for all protocol versions. Follows [Semantic Versioning](https://semver.org/).
 
-## v0.3.0 (Unreleased, RFC draft)
+## v0.3.0 (Released 2026-05-12)
 
-> **Status:** Draft on `feat/v0.3-pki-spec`, not yet released or tagged.
+> **Status:** Released. Tag `v0.3.0`. Spec text frozen for v0.3 series.
 
 ### Added
 

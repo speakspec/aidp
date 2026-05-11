@@ -6,9 +6,9 @@ description: AIDP 協議各版本的詳細變更紀錄
 
 所有協議版本的變更紀錄。遵循 [Semantic Versioning](https://semver.org/)。
 
-## v0.3.0 (尚未釋出，RFC 草案)
+## v0.3.0 (2026-05-12 已釋出)
 
-> **狀態：** 在 `feat/v0.3-pki-spec` branch 草擬中，尚未 release 也尚未 tag。
+> **狀態：** 已釋出,tag `v0.3.0`。v0.3 系列規格文本凍結。
 
 ### Added
 

@@ -1,18 +1,18 @@
 ---
 spec: AIDP
 version: 0.3.0
-status: draft
-released: null
+status: released
+released: 2026-05-12
 supersedes: v0.2.0
 ---
 
 # AIDP — AI Directive Protocol
 
 > **Version:** 0.3.0
-> **Status:** Draft (RFC)
+> **Status:** Released
 > **Author:** Otis / SpeakSpec
 > **License:** MIT (or CC-BY-4.0 for spec text)
-> **Last Updated:** 2026-05-01
+> **Last Updated:** 2026-05-12
 
 ## 1. Overview
 

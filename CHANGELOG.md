@@ -4,9 +4,9 @@ All notable changes to the AIDP protocol are documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [0.3.0] — Unreleased (RFC)
+## [0.3.0] — 2026-05-12
 
-> **Status:** Draft on `feat/v0.3-pki-spec`. Not yet released or tagged.
+> **Status:** Released. Tag `v0.3.0`. Spec text frozen for v0.3 series.
 
 ### Added
 
