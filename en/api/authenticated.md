@@ -170,6 +170,18 @@ All errors return:
 | GET | `/api/entities/{id}/export` | read |
 | POST | `/api/entities/{id}/import` | write |
 
+### Impressions (SDK upload)
+
+The `@speakspec/nuxt` SDK posts batched AI-crawler impressions observed on the customer's own origin to this endpoint. Entity is inferred from the API key — no path param.
+
+| Method | Path | Scope |
+|---|---|---|
+| POST | `/api/v1/impressions` | write |
+
+- Body: `{ "impressions": [{ user_agent, path, client_ip?, content_id? }, ...] }`, up to 100 records / 64 KB
+- Rate limit: 600 batches per entity per minute
+- Response 200 `{ "accepted": N }`
+
 ## Examples
 
 ### Fetch Entity AIDP document

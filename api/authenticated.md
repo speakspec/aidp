@@ -170,6 +170,18 @@ curl https://api.speakspec.com/api/entities/{entityId} \
 | GET | `/api/entities/{id}/export` | read |
 | POST | `/api/entities/{id}/import` | write |
 
+### Impressions（SDK 上送）
+
+`@speakspec/nuxt` SDK 用此 endpoint 把客戶 origin 觀察到的 AI crawler 訪問批次回送。Entity 由 API key 自動推斷，無需 path param。
+
+| 方法 | 路徑 | Scope |
+|---|---|---|
+| POST | `/api/v1/impressions` | write |
+
+- Body：`{ "impressions": [{ user_agent, path, client_ip?, content_id? }, ...] }`，最多 100 筆 / 64 KB
+- Rate limit：每 entity 每分鐘 600 batches
+- 回應 200 `{ "accepted": N }`
+
 ## 範例
 
 ### 取得 Entity AIDP 文件
