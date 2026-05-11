@@ -26,7 +26,9 @@ jobs:
           version: latest
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # pnpm 11 requires Node 22.13+; otherwise pnpm crashes with
+          # ERR_UNKNOWN_BUILTIN_MODULE on node:sqlite during startup.
+          node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
