@@ -77,6 +77,7 @@ export const zhTW: LocaleSpecificConfig<DefaultTheme.Config> = {
             { text: 'Nuxt SDK', link: '/developer/sdk-nuxt' },
             { text: 'Next.js SDK', link: '/developer/sdk-next' },
             { text: 'Astro SDK', link: '/developer/sdk-astro' },
+            { text: '自己實作 AIDP SDK', link: '/developer/build-your-own-sdk' },
             { text: '靜態檔案部署', link: '/developer/static-file' },
             { text: '匯入匯出格式', link: '/developer/import-export' },
           ],
