@@ -98,7 +98,7 @@ Cache TTL 太長對 SpeakSpec 是好事，但**對你的 SSR server 沒有幫助
 
 - 這個流量你**不可控**——AI vendor 自己決定要不要驗
 - 我們監測得到，且**這個會直接影響你 SpeakSpec 訂閱的成本**
-- 月配額 + 超量計費（依你的方案 tier，見 `/pricing`）
+- 月配額 + 超量計費（依你的方案 tier，見 `speakspec.com/pricing`）
 
 ## 建議的調 TTL 實務流程
 
@@ -113,4 +113,4 @@ Cache TTL 太長對 SpeakSpec 是好事，但**對你的 SSR server 沒有幫助
 
 - [REST API](./rest-api.md)
 - [MCP 整合](./mcp-integration.md)
-- [pricing](/pricing)（方案配額 + 超量單價）
+- [pricing](https://speakspec.com/pricing)（方案配額 + 超量單價）

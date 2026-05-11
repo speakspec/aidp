@@ -98,7 +98,7 @@ Distinct from SDK fetch (your visitors trigger): `canonical_verify` is **AI-vend
 
 - You **cannot control** this — AI vendors decide whether to verify
 - We monitor it, and **it directly affects your SpeakSpec subscription cost**
-- Monthly quota + overage charges (per your plan tier, see `/pricing`)
+- Monthly quota + overage charges (per your plan tier, see `speakspec.com/pricing`)
 
 ## Recommended TTL tuning workflow
 
@@ -113,4 +113,4 @@ Distinct from SDK fetch (your visitors trigger): `canonical_verify` is **AI-vend
 
 - [REST API](./rest-api.md)
 - [MCP integration](./mcp-integration.md)
-- [pricing](/pricing) (plan quota + overage rates)
+- [pricing](https://speakspec.com/pricing) (plan quota + overage rates)
