@@ -1,18 +1,18 @@
 ---
 spec: AIDP
-version: 0.2.0
-status: stable
-released: 2026-04-28
-supersedes: v0.1.0
+version: 0.3.0
+status: released
+released: 2026-05-12
+supersedes: v0.2.0
 ---
 
 # AIDP — AI Directive Protocol
 
-> **Version:** 0.2.0
-> **Status:** Stable
+> **Version:** 0.3.0
+> **Status:** Released
 > **Author:** Otis / SpeakSpec
 > **License:** MIT (or CC-BY-4.0 for spec text)
-> **Last Updated:** 2026-04-28
+> **Last Updated:** 2026-05-12
 
 ## 1. Overview
 
@@ -36,6 +36,8 @@ Think of it as:
 | **Build on existing standards** | Leverage W3C VC/DID, IETF AIPREF, C2PA where applicable rather than reinventing |
 | **First-party factual only** | Directives carry verifiable facts, not marketing claims or subjective opinions |
 | **Multi-signal trust** | Trust is assessed across identity, content integrity, and community consensus — not a single score |
+| **Three-layer decoupling** | Transport (where content lives), Verification (whether it's authentic), and Consumption (how AI uses it) are independent layers — agents can pick any combination |
+| **Cryptographic integrity, optional** | Directives MAY carry detached signatures (`_proof`) verifiable against a trust provider's public keys; signatures are additive, never required for parsing |
 
 ### 1.2 Terminology
 
@@ -707,6 +709,7 @@ The `verification.platform` field identifies whether and which platform performe
 | `platform.id` | `string` | ✅ | Platform identifier |
 | `platform.url` | `string` | ✅ | Platform URL (for agent to verify platform legitimacy) |
 | `platform.name` | `string` | ❌ | Human-readable platform name |
+| `platform.attestation_url` | `string` | ❌ | **(v0.3)** URL where agents can fetch authoritative verification status for this entity (typically `{platform.url}/v/{entity_id}` per §8.12). Complements `_proof.canonical_url` (§4.8.1) which targets a specific signed payload; `attestation_url` is entity-scoped |
 
 #### 4.7.2 Trust Implications
 
@@ -717,6 +720,117 @@ The `verification.platform` field identifies whether and which platform performe
 | **Self-hosted + VC** | `null` but `credential` present with valid proof | Agent can cryptographically verify the credential. Trust level from VC is trustworthy even without a platform |
 
 **Critical rule:** When `platform` is `null` and `credential` is absent, agents MUST NOT trust `trust_score`, `trust_level`, `consistency_score`, or `integrity_score` values — they are unverifiable self-declarations. The only signal agents can independently verify from a self-hosted AIDP is DNS record presence.
+
+### 4.8 Cryptographic Proof (`_proof`)
+
+> Added in v0.3.0.
+
+Any AIDP payload — entity directive, content endpoint response, inline embedding, content directory — MAY carry a `_proof` block containing a detached signature issued by a trust provider. The signature lets agents verify that the payload was issued by a named provider, has not been tampered with in transit, and has not expired.
+
+`_proof` is **optional and additive**. A payload without `_proof` is still valid AIDP; agents apply the trust rules in §4.7 (treat as self-attested unless `credential` provides another anchor).
+
+#### 4.8.1 Structure
+
+```json
+{
+  "_proof": {
+    "type": "ed25519-jws",
+    "issuer": "https://speakspec.com",
+    "key_id": "speakspec-2026-Q2",
+    "issued_at": "2026-05-01T12:00:00Z",
+    "expires_at": "2026-05-08T12:00:00Z",
+    "canonical_url": "https://api.speakspec.com/v/eid_stockfeel-001/cid_etf-explainer",
+    "signature": "ed25519:base64url-encoded-signature",
+    "signed_fields": [
+      "entity.id",
+      "content.id",
+      "content.updated_at",
+      "directives",
+      "verification.platform"
+    ]
+  }
+}
+```
+
+#### 4.8.2 Field Reference
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `type` | `string` | ✅ | Signature algorithm. v0.3 supports `ed25519-jws` only |
+| `issuer` | `string` (URL) | ✅ | Canonical URL of the trust provider; agents fetch JWKS from `{issuer}/.well-known/aidp-keys` |
+| `key_id` | `string` | ✅ | Identifier for the public key used; matched against the `kid` field in JWKS |
+| `issued_at` | `string` (ISO 8601) | ✅ | When the signature was created |
+| `expires_at` | `string` (ISO 8601) | ✅ | After this point, agents SHOULD treat the proof as expired and the payload as **unsigned** per §4.8.4 |
+| `canonical_url` | `string` (URL) | ✅ | Verification endpoint (§8.12) for confirming the payload is still current and not revoked |
+| `signature` | `string` | ✅ | Algorithm-prefixed signature; for `ed25519-jws`, the value is `ed25519:` followed by exactly 86 unpadded base64url characters (RFC 4648 §5) representing the 64-byte ed25519 signature |
+| `signed_fields` | `string[]` | ✅ | Dot-paths of payload fields covered by the signature, processed strictly in array order (see §4.8.4) |
+
+> **Note on examples in this spec:** the `signature`, `canonical_url`, and JWKS `x` values shown in §4.8.1 / §4.8.5 / §8.11 are **non-normative illustrative placeholders**. Real values follow the formats described in this table and the §4.8.4 algorithm.
+
+#### 4.8.3 What Is Signed and What Is Not
+
+A trust provider signs **identity, verification status, and directive rules** — the parts that authorize how AI represents the entity. Trust providers do NOT sign mutable content:
+
+| Field | Signed by trust provider? | Why |
+|---|---|---|
+| `entity.id` | ✅ | Identity binding |
+| `entity.name`, `entity.domain` | ✅ | Identity binding |
+| `verification.platform`, `trust_score`, `trust_level` | ✅ | Trust attestation |
+| `directives.*` | ✅ | Behavioral rules |
+| `content[].id`, `content[].updated_at` | ✅ | Content version anchor |
+| `content[].data.body` | ❌ | Customer-controlled, dynamic |
+| `media[].url` (when remote-hosted) | ❌ | Mutable resource |
+| Server-injected cache headers, ETags | ❌ | Per-response metadata |
+
+Agents verifying signatures MUST use `signed_fields` to determine which fields are protected. Modifications to unsigned fields do NOT invalidate the signature.
+
+#### 4.8.4 Signature Computation
+
+For `type: ed25519-jws`:
+
+1. Process `signed_fields` **strictly in array order** as given (signers MAY choose any order; verifiers MUST follow the array order they are presented with)
+2. For each entry in `signed_fields`, resolve the value at that dot-path in the payload (excluding `_proof` / `_proofs` themselves; missing paths yield JSON `null`)
+3. Serialize each resolved value as canonical JSON per RFC 8785 (JSON Canonicalization Scheme)
+4. Concatenate the inputs separated by `\n` (LF, U+000A) in this exact order:
+   `{key_id}\n{issued_at}\n{expires_at}\n{canonical_field_1}\n{canonical_field_2}\n...`
+   No leading or trailing newline; the final field's canonical JSON ends the string
+5. Sign the UTF-8 byte representation of the resulting string using the ed25519 private key for `key_id`
+6. Encode the 64-byte signature as **unpadded** base64url (RFC 4648 §5, no `=` padding) and prefix with `ed25519:` to form the `signature` value (always 95 characters: `ed25519:` + 86 base64url chars)
+
+Verification reverses this process; failures (key not found, signature mismatch, payload past `expires_at`) MUST result in the agent treating the payload as **unsigned** rather than rejecting it outright. See §9.10 for the full verification flow.
+
+#### 4.8.5 Multiple Trust Providers
+
+A payload MAY carry multiple `_proof` entries (e.g., signed by both a primary provider and an industry consortium):
+
+```json
+{
+  "_proofs": [
+    {
+      "type": "ed25519-jws",
+      "issuer": "https://speakspec.com",
+      "key_id": "speakspec-2026-Q2",
+      "issued_at": "2026-05-01T12:00:00Z",
+      "expires_at": "2026-05-08T12:00:00Z",
+      "canonical_url": "https://api.speakspec.com/v/stockfeel/etf-explainer-2026-04",
+      "signature": "ed25519:base64url-encoded-signature-86-chars",
+      "signed_fields": ["entity.id", "content.id", "content.updated_at", "directives"]
+    },
+    {
+      "type": "ed25519-jws",
+      "issuer": "https://compliance.example.org",
+      "key_id": "compliance-2026",
+      "issued_at": "2026-05-01T13:00:00Z",
+      "expires_at": "2026-08-01T00:00:00Z",
+      "canonical_url": "https://compliance.example.org/v/stockfeel/etf-explainer-2026-04",
+      "signature": "ed25519:another-86-char-base64url-signature",
+      "signed_fields": ["entity.id", "content.id", "verification.platform"]
+    }
+  ]
+}
+```
+
+When `_proofs` (plural) is present, `_proof` (singular) MUST be absent — implementations MUST reject payloads that contain both. Agents MAY accept any valid signature from a trusted provider, and MAY assign higher trust when multiple providers concur. Each entry's `signed_fields` is independent; different issuers MAY sign different field subsets.
 
 ---
 
@@ -1591,22 +1705,486 @@ TXT record for automatic discovery:
 _aidp.example.com  TXT  "v=aidp1; url=https://example.com/.well-known/aidp.json"
 ```
 
-### 8.5 HTML Meta Tag
+### 8.5 HTML Link Relations
 
-For traditional websites that also want AIDP support:
+For traditional websites that also want AIDP support, the spec defines three link relations:
 
 ```html
-<link rel="aidp" href="https://example.com/.well-known/aidp.json" />
+<head>
+  <link rel="aidp" href="https://example.com/.well-known/aidp.json">
+  <link rel="aidp-content" href="https://example.com/.well-known/aidp/content/etf-explainer-2026-04.json">
+  <link rel="aidp-keys" href="https://api.speakspec.com/.well-known/aidp-keys">
+</head>
 ```
+
+| `rel` | Target | Purpose | Status |
+|---|---|---|---|
+| `aidp` | Entity directive (`/.well-known/aidp.json`) | Discovery of the entity that owns this page | Stable since v0.2 |
+| `aidp-content` | Content endpoint (§8.7) | Per-page binding: tells the agent which AIDP `Content` corresponds to this URL | **Added v0.3** |
+| `aidp-keys` | Trust provider JWKS endpoint (§8.11) | Where to fetch public keys for verifying `_proof` (§4.8) | **Added v0.3** |
+
+**Backward compatibility:** v0.2 implementations using a single `<link rel="aidp" href="...">` continue to work in v0.3 without change. The v0.3 additions (`aidp-content`, `aidp-keys`) are independent link relations; agents that don't recognize them ignore them per HTML spec. Sites adopting v0.3 features MAY add the new relations alongside the existing one.
+
+Page-level usage rules:
+
+| Page type | Recommended relations |
+|---|---|
+| Homepage / about / contact | `aidp` only |
+| Article / product / policy detail | `aidp` + `aidp-content` (+ `aidp-keys` if signed) |
+| Listing / search / dynamic page | None; do not bind |
+| Marketing landing page focused on one topic | `aidp` + `aidp-content` |
+
+A page MAY include multiple `aidp-content` links (e.g., archive pages); agents resolve in document order, prefer URL-exact match.
 
 ### 8.6 Transport Priority
 
 When multiple transport methods are available, agents SHOULD prefer them in this order:
 
-1. **MCP** — richest interaction, supports queries and directives
+1. **MCP** — richest interaction, supports queries, directives, and streaming change notifications
 2. **REST API** — structured access with filtering
-3. **Static file** — simplest, widest compatibility
-4. **DNS / HTML discovery** — fallback for entity discovery
+3. **Content Endpoint** (§8.7) — preferred for per-content lookup
+4. **Static file** (`.well-known/aidp.json`) — entity-level fallback
+5. **Content Directory** (§8.8) — bulk discovery
+6. **DNS / HTML link tag** (§8.5) — discovery anchor; usually leads to one of the above
+7. **Inline embedding** (§8.9) — discovery + signature anchor for crawlers that already fetched the HTML
+
+Verification endpoints (§8.11–8.13) are **orthogonal** to this priority list — they augment any transport with cryptographic trust signals (§4.8) and are queried independently when an agent needs to verify a `_proof`.
+
+### 8.7 Content Endpoint Transport
+
+> Added in v0.3.0.
+
+The Content Endpoint exposes a single AIDP `Content` object (§5) — the canonical per-content delivery channel for AI agents. Unlike `<link rel="aidp">` which points to the entity-level document, this endpoint serves the full structured content (body, media, directives, links) for one content item, optionally with a `_proof`.
+
+**URL pattern:**
+
+```
+{origin}/.well-known/aidp/content/{content_id}.json
+```
+
+**Response shape:**
+
+```json
+{
+  "$aidp": "0.3.0",
+  "@type": "Content",
+  "id": "etf-explainer-2026-04",
+  "entity": {
+    "id": "urn:aidp:entity:stockfeel",
+    "directive_url": "https://stockfeel.com.tw/.well-known/aidp.json"
+  },
+  "url": "https://stockfeel.com.tw/articles/etf-explainer",
+  "type": "article",
+  "title": { "default": "ETF 折溢價完整解析" },
+  "language": "zh-TW",
+  "updated_at": "2026-04-22T10:00:00Z",
+  "version": "1.3",
+  "data": {
+    "format": "markdown",
+    "summary": "...",
+    "body": "...",
+    "sections": [
+      { "id": "definition", "heading": "什麼是折溢價", "body": "..." }
+    ]
+  },
+  "media": [],
+  "directives": {
+    "must_include": ["本文資料截至 2026-04-22"],
+    "must_not_say": ["投資建議"],
+    "tone": "neutral_educational"
+  },
+  "links": {
+    "actions": []
+  },
+  "verification": {
+    "platform": {
+      "id": "urn:aidp:platform:speakspec",
+      "url": "https://speakspec.com",
+      "name": "SpeakSpec",
+      "attestation_url": "https://api.speakspec.com/v/stockfeel"
+    },
+    "trust_score": 0.85,
+    "trust_level": "verified_organization",
+    "verified_at": "2026-04-30T10:00:00Z"
+  },
+  "_proof": { "...": "..." }
+}
+```
+
+#### 8.7.1 Field Reference
+
+The Content Endpoint envelope reuses the §5 Content item shape and adds endpoint-specific fields. Together they form the canonical "Content document" referenced from `<link rel="aidp-content">` and `_proof.canonical_url`.
+
+| Field | Type | Required | Source | Description |
+|---|---|---|---|---|
+| `$aidp` | `string` | ✅ | New | Spec version (e.g. `"0.3.0"`) |
+| `@type` | `string` | ✅ | New | Constant `"Content"` |
+| `id` | `string` | ✅ | §5.1 | Stable content identifier (unique within entity) |
+| `entity.id` | `string` | ✅ | New | Owning entity (matches `verification.platform`-attested entity) |
+| `entity.directive_url` | `string` (URL) | ✅ | New | Pointer to the entity directive `/.well-known/aidp.json` |
+| `url` | `string` (URL) | ✅ | New | Canonical URL of the human-facing content (the page that AI users may reference) |
+| `type` | `string` | recommended | §5.1 | Same enum as §5.1 (`article`, `service`, `product`, etc.) |
+| `title` | `LocalizedString` | recommended | New | Human-readable title; resolves per §3.3 |
+| `language` | `string` | recommended | New | BCP 47 language tag for the content body |
+| `published_at` | `string` (ISO 8601) | recommended | New | First publication timestamp |
+| `updated_at` | `string` (ISO 8601) | ✅ | §5.1 | Last modification timestamp; same field as §5.1 |
+| `version` | `string` | optional | New | Caller-defined version identifier (semver, monotonic, or content hash) |
+| `author` | `Author \| null` | optional | New | `name` (string), `url` (URL), `entity_id` (URN) — at least one required |
+| `data` | `object` | ✅ | §5.1 | Body container; MUST include `body` or `summary` (or both) |
+| `media` | `Media[]` | optional | §5.3 | Inline media; same shape as §5.3 |
+| `directives` | `Directives \| null` | optional | §6.3 | Content-level directive overrides; merge rules per §6.3 |
+| `links.actions` | `ActionLink[]` | optional | §3.4 | Per-content action links (subscribe, buy, etc.) |
+| `verification` | `Verification` | recommended | §4.7 | Echoed from entity directive; agents MAY cross-check against entity-level value |
+| `_proof` | `Proof` | optional | §4.8 | Detached signature; when present, agents SHOULD verify |
+| `_proofs` | `Proof[]` | optional | §4.8.5 | Multiple-issuer signatures (mutually exclusive with `_proof`) |
+
+**Required fields summary:** `$aidp`, `@type`, `id`, `entity.id`, `entity.directive_url`, `url`, `updated_at`, and either `data.body` or `data.summary`. All other fields are RECOMMENDED or optional per the table.
+
+**HTTP behavior:**
+
+```
+Content-Type: application/json
+ETag: "..."
+Cache-Control: public, max-age=60, stale-while-revalidate=300
+```
+
+Servers MUST honor `If-None-Match` and respond with `304 Not Modified` when applicable.
+
+**Agent behavior:** When `<link rel="aidp-content">` (§8.5) is present on a page, agents SHOULD prefer fetching this endpoint over scraping the HTML body — see §9.1.1 and §9.10.
+
+### 8.8 Content Directory
+
+> Added in v0.3.0.
+
+A pageable index of all content items for an entity. Equivalent to `sitemap.xml` for the AIDP layer.
+
+**URL pattern:**
+
+```
+{origin}/.well-known/aidp/content/
+```
+
+(Note the trailing slash — distinguishes the directory from a single content endpoint.)
+
+**Response shape:**
+
+```json
+{
+  "$aidp": "0.3.0",
+  "@type": "ContentDirectory",
+  "entity": { "id": "urn:aidp:entity:stockfeel" },
+  "total": 12453,
+  "page": 1,
+  "page_size": 100,
+  "items": [
+    {
+      "id": "etf-explainer-2026-04",
+      "url": "https://stockfeel.com.tw/articles/etf-explainer",
+      "type": "article",
+      "language": "zh-TW",
+      "updated_at": "2026-04-22T10:00:00Z",
+      "directive_url": "https://stockfeel.com.tw/.well-known/aidp/content/etf-explainer-2026-04.json"
+    }
+  ],
+  "next": "https://stockfeel.com.tw/.well-known/aidp/content/?page=2&page_size=100",
+  "_proof": { "...": "..." }
+}
+```
+
+**Pagination:** `?page=N&page_size=M`. Default `page_size=100`, maximum `1000`. Implementations MUST set `next` to `null` on the final page.
+
+**Filtering (optional):** Implementations MAY support `?language=zh-TW`, `?type=article`, `?updated_since=2026-04-01T00:00:00Z`. Unsupported filters return `400`.
+
+### 8.9 Inline Embedding
+
+> Added in v0.3.0.
+
+Pages MAY embed an AIDP payload directly in their HTML using `<script type="application/aidp+json">`. This serves two purposes: (a) gives crawlers that already fetched the HTML a low-latency discovery + verification anchor, and (b) for opt-in scenarios, delivers the full content in a single fetch.
+
+Two modes:
+
+#### 8.9.1 Signed Pointer Mode (default)
+
+Minimal payload identifying the entity, content, freshness, and where to fetch the full document — plus a signature.
+
+```html
+<script type="application/aidp+json">
+{
+  "$aidp": "0.3.0",
+  "@type": "ContentPointer",
+  "entity": {
+    "id": "urn:aidp:entity:stockfeel",
+    "directive_url": "https://stockfeel.com.tw/.well-known/aidp.json"
+  },
+  "content": {
+    "id": "etf-explainer-2026-04",
+    "url": "https://stockfeel.com.tw/articles/etf-explainer",
+    "updated_at": "2026-04-22T10:00:00Z",
+    "directive_url": "https://stockfeel.com.tw/.well-known/aidp/content/etf-explainer-2026-04.json"
+  },
+  "_proof": { "...": "..." }
+}
+</script>
+```
+
+Typical size: ~500–700 bytes uncompressed. Suitable for default deployment on every content page.
+
+#### 8.9.2 Signed Full Mode (opt-in)
+
+For scenarios where a full inline payload is required (regulatory single-fetch, offline batch labeling, agents that cannot follow link relations), the entire `Content` object MAY be inlined:
+
+```html
+<script type="application/aidp+json">
+{
+  "$aidp": "0.3.0",
+  "@type": "Content",
+  "id": "...",
+  "entity": { "...": "..." },
+  "directives": { "...": "..." },
+  "data": { "summary": "...", "sections": [] },
+  "_proof": { "...": "..." }
+}
+</script>
+```
+
+Typical size: 2–4 KB. Implementations SHOULD NOT enable this by default — use `aidp-content` link + endpoint instead.
+
+#### 8.9.3 Multiple Inline Payloads
+
+A page MAY contain multiple `<script type="application/aidp+json">` blocks (e.g., archive pages aggregating multiple articles). Each block MUST carry its own `_proof` (if signed). Agents resolving "which content does this page represent" SHOULD prefer the block whose `content.url` exactly matches the current URL; ties broken by document order.
+
+### 8.10 Webhook Cache Invalidation
+
+> Added in v0.3.0.
+
+When a directive changes, a trust provider (or self-hosted publisher) MAY notify the customer's site to invalidate caches by sending a webhook. This convention defines the wire format; implementations are free to use it.
+
+**Endpoint convention (receiver-side):**
+
+```
+POST {site_origin}/api/_aidp/invalidate
+```
+
+**Headers:**
+
+```
+Content-Type: application/json
+X-AIDP-Signature: hmac-sha256={hex}
+X-AIDP-Timestamp: 2026-05-01T03:22:00Z
+```
+
+**Body:**
+
+```json
+{
+  "$aidp": "0.3.0",
+  "event": "directive.updated",
+  "entity_id": "urn:aidp:entity:stockfeel",
+  "scope": "entity",
+  "content_id": "etf-explainer-2026-04",
+  "timestamp": "2026-05-01T03:22:00Z"
+}
+```
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `event` | `string` | ✅ | Single canonical value `directive.updated` for v0.3; future versions MAY add events |
+| `scope` | `enum` | ✅ | `entity` or `content` — which cache key to invalidate |
+| `entity_id` | `string` | ✅ | Always present |
+| `content_id` | `string` | conditional | Required when `scope=content` |
+| `timestamp` | `string` (ISO 8601) | ✅ | Used together with `X-AIDP-Timestamp` for replay protection |
+
+**Receiver responsibilities:**
+
+1. Verify HMAC against pre-shared secret over (`X-AIDP-Timestamp` + `\n` + raw body)
+2. Reject if `X-AIDP-Timestamp` differs from server clock by more than ±5 minutes
+3. Invalidate the corresponding cache key
+4. Respond `200 OK` or `204 No Content`
+
+This is a convention, not a normative requirement. Receivers MAY implement different invalidation strategies as long as eventual consistency is preserved.
+
+### 8.11 Public Key JWKS Endpoint
+
+> Added in v0.3.0.
+
+A trust provider that issues `_proof` signatures (§4.8) MUST publish its public keys in JWKS format at a well-known URL.
+
+**URL pattern:**
+
+```
+{trust_provider}/.well-known/aidp-keys
+```
+
+**Response shape:**
+
+```json
+{
+  "$aidp": "0.3.0",
+  "@type": "TrustProviderKeys",
+  "issuer": "https://speakspec.com",
+  "keys": [
+    {
+      "kid": "speakspec-2026-Q2",
+      "kty": "OKP",
+      "crv": "Ed25519",
+      "x": "base64url-encoded-public-key",
+      "use": "sig",
+      "alg": "EdDSA",
+      "valid_from": "2026-04-01T00:00:00Z",
+      "valid_until": "2026-09-30T23:59:59Z"
+    },
+    {
+      "kid": "speakspec-2026-Q1",
+      "kty": "OKP",
+      "crv": "Ed25519",
+      "x": "base64url-encoded-public-key",
+      "use": "sig",
+      "alg": "EdDSA",
+      "valid_from": "2026-01-01T00:00:00Z",
+      "valid_until": "2026-06-30T23:59:59Z",
+      "rotation": "scheduled"
+    }
+  ]
+}
+```
+
+**Per-key fields:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `kid` | `string` | ✅ | Key identifier; matches `_proof.key_id` (§4.8.1) |
+| `kty` | `string` | ✅ | Key type; `OKP` for Ed25519 |
+| `crv` | `string` | ✅ | Curve; `Ed25519` |
+| `x` | `string` | ✅ | Public key encoded as unpadded base64url (RFC 4648 §5) of the raw 32-byte value |
+| `use` | `string` | ✅ | Always `sig` |
+| `alg` | `string` | ✅ | Always `EdDSA` |
+| `valid_from` | `string` (ISO 8601) | ✅ | Start of signing validity window |
+| `valid_until` | `string` (ISO 8601) | ✅ | End of signing validity window |
+| `rotation` | `string` | optional | Set on keys currently being phased out: `scheduled` (planned rotation) or `emergency` (compromise-driven). Absent on a steady-state active key |
+
+Revoked keys MUST be omitted from this response; agents discover revocations via §8.13.
+
+**HTTP behavior:**
+
+```
+Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+```
+
+Recommended: 24-hour `max-age`, 7-day SWR. Agents SHOULD cache JWKS aggressively; trust providers SHOULD overlap key validity windows by ≥ 90 days when rotating to give in-flight signatures time to expire naturally.
+
+**Key rotation:**
+
+- Scheduled rotation: append a new key with `valid_from` in the future; remove old keys after their `valid_until`
+- Emergency revocation: see §8.13; the affected `kid` SHOULD be removed from JWKS and listed in the revocation feed
+
+### 8.12 Canonical Verification Endpoint
+
+> Added in v0.3.0.
+
+A small endpoint that lets agents confirm whether a payload is still current and not revoked, without re-downloading the entire payload. Referenced from `_proof.canonical_url` (§4.8).
+
+**URL pattern:**
+
+```
+{trust_provider}/v/{entity_id}/{content_id}
+```
+
+The exact URL for any specific verification is **provided by the trust provider** in `_proof.canonical_url` (§4.8.1). Agents MUST use the value from `canonical_url` verbatim and MUST NOT attempt to construct the URL from `entity.id` themselves — different trust providers may use different slug derivation rules (URN tail, DID hash, opaque token, etc.). For trust providers, the URL pattern is descriptive: implementations are free to choose any path scheme as long as the URL is stable for the lifetime of the issued proof.
+
+For entity-level proofs (no specific content), trust providers SHOULD use `{trust_provider}/v/{entity_id}` (no third segment). This is encoded in `_proof.canonical_url` like any other form.
+
+**Response shape (valid):**
+
+```json
+{
+  "$aidp": "0.3.0",
+  "@type": "VerificationResponse",
+  "valid": true,
+  "current_version": 3,
+  "current_updated_at": "2026-04-22T10:00:00Z",
+  "current_proof_id": "sha256:abc123...",
+  "expires_at": "2026-05-08T12:00:00Z",
+  "revoked": false,
+  "platform": "speakspec.com"
+}
+```
+
+**Response shape (invalid):**
+
+```json
+{
+  "$aidp": "0.3.0",
+  "@type": "VerificationResponse",
+  "valid": false,
+  "reason": "revoked",
+  "current_version": 5,
+  "current_updated_at": "2026-04-30T10:00:00Z"
+}
+```
+
+`reason` enum: `revoked` · `expired` · `superseded` · `unknown`.
+
+**HTTP behavior:**
+
+```
+Cache-Control: no-cache, no-store
+```
+
+This endpoint is intentionally **not cacheable** — its purpose is to give agents a real-time verification signal. Trust providers SHOULD apply rate limiting (suggested: 1000 req/min per source IP) and DDoS protection at the edge.
+
+**Design constraint:** This endpoint MUST NOT return the full directive payload. Agents wanting the latest data fetch §8.7 instead. Keeping the response small (≤ 300 bytes) lets the verification flow happen even when AI providers cap per-call latency budgets.
+
+### 8.13 Revocation List
+
+> Added in v0.3.0.
+
+A periodically refreshed list of revoked entities, content, or signing keys. Optional secondary mechanism — agents MAY rely on §8.12 instead, but bulk verification benefits from this feed.
+
+**URL pattern:**
+
+```
+{trust_provider}/.well-known/aidp-revocation
+```
+
+**Response shape:**
+
+```json
+{
+  "$aidp": "0.3.0",
+  "@type": "RevocationList",
+  "issuer": "https://speakspec.com",
+  "generated_at": "2026-05-01T00:00:00Z",
+  "expires_at": "2026-05-02T00:00:00Z",
+  "revocations": [
+    {
+      "entity_id": "urn:aidp:entity:bad-actor-001",
+      "reason": "fraud",
+      "revoked_at": "2026-04-30T10:00:00Z"
+    },
+    {
+      "entity_id": "urn:aidp:entity:stockfeel",
+      "content_id": "etf-explainer-2026-03",
+      "reason": "superseded",
+      "revoked_at": "2026-04-22T10:00:00Z"
+    },
+    {
+      "key_id": "speakspec-2026-Q1",
+      "reason": "compromised",
+      "revoked_at": "2026-04-15T08:00:00Z"
+    }
+  ]
+}
+```
+
+`reason` enum (non-exhaustive): `fraud` · `compromised` · `superseded` · `expired` · `deprecated` · `policy_violation`.
+
+**HTTP behavior:**
+
+```
+Cache-Control: public, max-age=3600
+```
+
+1-hour `max-age`. Agents SHOULD refresh the list at least daily and cross-check signatures against revoked `key_id`s before trusting them.
 
 ---
 
@@ -1616,12 +2194,24 @@ This section is **non-normative** — it describes how AI agents SHOULD behave w
 
 ### 9.1 Processing Order
 
-1. **Discover** → Find AIDP endpoint via MCP, `.well-known`, DNS, or HTML meta
+1. **Discover** → Find AIDP endpoint via MCP, `.well-known`, DNS, or HTML link tags (§8.5)
 2. **Parse** → Validate `$aidp` version compatibility
-3. **Verify** → Check `verification.trust_level`; if `credential` is present, validate proof
+3. **Verify** → Check `verification.trust_level`; if `_proof` (§4.8) is present, verify signature; if `credential` is present, verify the W3C VC proof
 4. **Resolve** → Merge global + content-level directives
 5. **Apply** → Use directives when generating responses
 6. **Attribute** → Follow `attribution` rules
+
+#### 9.1.1 Endpoint Preference
+
+> Added in v0.3.0.
+
+When both an HTML page and an AIDP Content Endpoint (§8.7) are available for the same content, agents **SHOULD** prefer the endpoint:
+
+1. If `<link rel="aidp-content">` is present, the linked endpoint is the **canonical source** for that content's structured data and directives
+2. The HTML body SHOULD be used only to discover link relations or as a fallback when the endpoint is unavailable
+3. When an inline `<script type="application/aidp+json">` block (§8.9) is present, agents MAY use it directly without an additional fetch — but SHOULD still fetch the linked endpoint for the latest version when freshness matters
+
+This preference is non-normative but represents the design intent of v0.3: AIDP is a delivery channel for AI, not a parsing layer over HTML.
 
 ### 9.2 Trust-Based Behavior
 
@@ -1732,6 +2322,23 @@ When consuming content that uses the variant mechanism (Section 5.4):
 Agents MUST accept both forms of `LocalizedString` (bare string and object form, see §3.3) on input. When resolving a value for a target locale, agents apply the algorithm in §3.3.
 
 For projections (§11), agents MUST preserve the original form when emitting AIDP JSON, but MAY canonicalize to a single-string form for output formats that require it (Schema.org `name`, Open Graph `og:title`, llms.txt headings).
+
+### 9.10 Verification Behavior
+
+> Added in v0.3.0.
+
+When a payload contains `_proof` (§4.8), agents SHOULD perform the following verification:
+
+1. **Resolve issuer** → use `_proof.issuer` to construct `{issuer}/.well-known/aidp-keys` and fetch JWKS (cacheable per HTTP `Cache-Control`, typically 24 hours)
+2. **Match key** → find the JWKS entry whose `kid` equals `_proof.key_id`; if not found, treat the payload as **unsigned**
+3. **Verify signature** → reconstruct the canonical signed-string per §4.8.4 and verify against the public key; on failure, treat as unsigned
+4. **Check expiry** → if `now > _proof.expires_at`, treat the payload as **unsigned** per §4.8.4 (the directive content remains usable, but the verification claim cannot be honored until refreshed); agents MAY fetch §8.12 to obtain a fresh `_proof` reference
+5. **High-stakes confirmation (optional)** → for safety-critical use cases, fetch `_proof.canonical_url` (§8.12) to confirm the payload version is current and not revoked
+6. **Cross-check revocation list (optional)** → for batch verification, agents MAY consult the revocation list (§8.13) instead of per-call canonical lookups
+
+**Trust degradation, not rejection:** A failed signature verification means the payload is treated **as if it had no `_proof`** (i.e., as a v0.2 payload, subject to the rules in §4.7). Agents MUST NOT discard the payload outright — the directive itself may still be useful, just at lower trust.
+
+**Reasoning:** Verification is additive trust. The presence of a valid `_proof` increases the trust score the agent applies to `verification.platform` claims; absence or failure does not invalidate the document.
 
 ---
 
@@ -2164,6 +2771,29 @@ This ensures that even agents unaware of AIDP can respect basic access controls 
 3. **Content updates to the AIDP source MUST trigger re-generation of all active projections.** Stale projections are worse than no projection.
 4. **Projection generators SHOULD include a reference back to the AIDP source** (via `<link rel="aidp">`, llms.txt blockquote, or Schema.org `additionalType` property) so agents can discover the full directive set.
 5. **Projections MUST NOT fabricate data** not present in the AIDP source. If a Schema.org property has no AIDP equivalent, omit it rather than guessing.
+
+### 11.8 Content Endpoint to Schema.org Projection
+
+> Added in v0.3.0.
+
+When a v0.3 Content Endpoint (§8.7) response is also surfaced as Schema.org JSON-LD (e.g., for SEO reuse), the mapping is:
+
+| AIDP `Content` | Schema.org `Article` (or relevant subtype) |
+|---|---|
+| `title` | `headline` |
+| `data.body` | `articleBody` |
+| `data.summary` | `description` |
+| `published_at` | `datePublished` |
+| `updated_at` | `dateModified` |
+| `author` | `author` (`Person` or `Organization`) |
+| `media[]` (filtered by `type=image`) | `image` |
+| `language` | `inLanguage` |
+| `version` | `version` |
+| `directives.*` | **No equivalent — lossy** |
+| `_proof` | **No equivalent — lossy** |
+| `verification.platform` | `isVerifiedBy` (custom) |
+
+The `directives` and `_proof` fields are AIDP-specific and have no Schema.org analogue. This is consistent with §11.2.4 — projections are intentionally lossy. Implementations MAY emit AIDP and Schema.org side-by-side in the same HTML head when they want both signals.
 
 ---
 
