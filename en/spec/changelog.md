@@ -6,7 +6,7 @@ description: Detailed changelog for each version of the AIDP protocol
 
 Changelog for all protocol versions. Follows [Semantic Versioning](https://semver.org/).
 
-## [0.4.1] — 2026-05-12
+## [0.4.1] — 2026-05-13
 
 > **Status:** Released. Tag `v0.4.1`. Hotfix on top of v0.4.0.
 

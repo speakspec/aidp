@@ -2,7 +2,7 @@
 spec: AIDP
 version: 0.4.1
 status: released
-released: 2026-05-12
+released: 2026-05-13
 supersedes: v0.4.0
 ---
 
@@ -12,7 +12,7 @@ supersedes: v0.4.0
 > **Status:** Released
 > **Author:** Otis / SpeakSpec
 > **License:** MIT (or CC-BY-4.0 for spec text)
-> **Last Updated:** 2026-05-12
+> **Last Updated:** 2026-05-13
 
 ## 1. Overview
 

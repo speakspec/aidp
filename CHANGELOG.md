@@ -4,7 +4,7 @@ All notable changes to the AIDP protocol are documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [0.4.1] — 2026-05-12
+## [0.4.1] — 2026-05-13
 
 > **Status:** Released. Tag `v0.4.1`. Hotfix on top of v0.4.0.
 

@@ -1,0 +1,485 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://docs.speakspec.com/schema/v0.4.1.json",
+  "title": "AIDP Document v0.4.1",
+  "description": "JSON Schema for AIDP (AI Directive Protocol) v0.4.1. Hotfix on v0.4.0 formalising the root-level `_proof` for the entity directive (signed_fields = [entity.id, entity.domain, $aidp]). Shape identical to v0.4.0 — the root `_proof` slot was already additive in v0.4.0; v0.4.1 documents its intended use on the entity directive. See https://docs.speakspec.com/spec/ for the full prose specification.",
+  "type": "object",
+  "required": ["$schema", "$aidp", "entity", "directives", "verification", "content", "content_index", "community", "extensions", "meta"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri"
+    },
+    "$aidp": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "entity": {
+      "type": "object",
+      "required": ["id", "type", "name"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["organization", "business", "government", "academic", "media", "individual", "bot"]
+        },
+        "name": { "type": ["object", "string"] },
+        "description": { "type": ["object", "string", "null"] },
+        "domain": { "type": ["string", "null"] },
+        "locale": { "type": "string" },
+        "category": { "type": "array", "items": { "type": "string" } },
+        "market": { "type": ["string", "null"] },
+        "variant_of": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    },
+    "directives": {
+      "type": "object",
+      "properties": {
+        "freshness": {
+          "type": "object",
+          "properties": {
+            "default_ttl": { "type": "integer", "minimum": 0 },
+            "stale_action": { "type": "string", "enum": ["warn", "hide", "fallback"] }
+          },
+          "additionalProperties": true
+        },
+        "access_control": {
+          "type": "object",
+          "properties": {
+            "allow_caching":       { "type": "boolean" },
+            "allow_training":      { "type": "boolean" },
+            "allow_derivative":    { "type": "boolean" },
+            "require_attribution": { "type": "boolean" }
+          },
+          "additionalProperties": true
+        },
+        "interaction": { "type": "object", "additionalProperties": true },
+        "ai_behavior": { "type": "object", "additionalProperties": true }
+      },
+      "additionalProperties": true
+    },
+    "verification": {
+      "type": "object",
+      "required": ["methods", "trust_score", "trust_level"],
+      "properties": {
+        "methods": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["type", "status"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "dns_txt",
+                  "dns_cname",
+                  "meta_tag",
+                  "business_registration",
+                  "domain_whois",
+                  "email_domain",
+                  "social_verification",
+                  "manual_review",
+                  "third_party",
+                  "verifiable_credential"
+                ]
+              },
+              "status": { "type": "string" },
+              "verified_at": { "type": ["string", "null"], "format": "date-time" }
+            },
+            "additionalProperties": true
+          }
+        },
+        "trust_score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "trust_level": {
+          "type": "string",
+          "enum": ["unverified", "claimed", "verified_domain", "verified_organization", "institutional", "sovereign"]
+        },
+        "last_verified": { "type": ["string", "null"], "format": "date-time" },
+        "credential": { "type": ["object", "null"], "additionalProperties": true },
+        "platform": { "$ref": "#/$defs/Platform" }
+      },
+      "additionalProperties": true
+    },
+    "content": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/ContentItem" }
+    },
+    "content_index": {
+      "type": "object",
+      "description": "AIDP v0.4: content directory pointer + per-type stats. See spec §8.X.",
+      "required": ["url", "types_inlined", "types_indexed", "total_by_type", "pinned_count", "updated_at"],
+      "properties": {
+        "url": { "type": "string", "format": "uri" },
+        "types_inlined": { "type": "array", "items": { "type": "string" } },
+        "types_indexed": { "type": "array", "items": { "type": "string" } },
+        "total_by_type": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "pinned_count": { "type": "integer", "minimum": 0 },
+        "updated_at": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    },
+    "community": {
+      "type": "object",
+      "required": ["disputes", "integrity_score"],
+      "properties": {
+        "disputes": {
+          "type": "object",
+          "required": ["total", "resolved", "pending", "rejected"],
+          "properties": {
+            "total":    { "type": "integer", "minimum": 0 },
+            "resolved": { "type": "integer", "minimum": 0 },
+            "pending":  { "type": "integer", "minimum": 0 },
+            "rejected": { "type": "integer", "minimum": 0 }
+          },
+          "additionalProperties": true
+        },
+        "integrity_score": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "extensions": {
+      "type": ["object", "array", "null"]
+    },
+    "meta": {
+      "type": "object",
+      "required": ["generated_at", "platform"],
+      "properties": {
+        "generated_at": { "type": "string", "format": "date-time" },
+        "platform": {
+          "type": "object",
+          "required": ["id", "name", "url"],
+          "properties": {
+            "id":   { "type": "string" },
+            "name": { "type": "string" },
+            "url":  { "type": "string", "format": "uri" }
+          },
+          "additionalProperties": true
+        },
+        "spec_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" }
+      },
+      "additionalProperties": true
+    },
+    "_proof": {
+      "$ref": "#/$defs/Proof",
+      "description": "Optional root-level detached signature over the entity directive. Hosted trust providers (e.g., SpeakSpec) SHOULD sign with signed_fields = [\"entity.id\", \"entity.domain\", \"$aidp\"]. Added in v0.4.1."
+    },
+    "_proofs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Proof" },
+      "minItems": 1
+    }
+  },
+  "additionalProperties": false,
+  "not": {
+    "required": ["_proof", "_proofs"]
+  },
+  "$defs": {
+    "Proof": {
+      "type": "object",
+      "description": "Detached signature issued by a trust provider over selected fields. See spec §4.8.",
+      "required": ["type", "issuer", "key_id", "issued_at", "expires_at", "canonical_url", "signature", "signed_fields"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ed25519-jws"],
+          "description": "Signature algorithm. v0.3.0 supports ed25519-jws only."
+        },
+        "issuer": {
+          "type": "string",
+          "format": "uri",
+          "description": "Trust provider's canonical URL. Agents fetch JWKS at {issuer}/.well-known/aidp-keys."
+        },
+        "key_id": { "type": "string" },
+        "issued_at": { "type": "string", "format": "date-time" },
+        "expires_at": { "type": "string", "format": "date-time" },
+        "canonical_url": { "type": "string", "format": "uri" },
+        "signature": {
+          "type": "string",
+          "pattern": "^ed25519:[A-Za-z0-9_-]{86}$",
+          "description": "ed25519 64-byte signature, encoded as unpadded base64url (RFC 4648 §5), prefixed with 'ed25519:'. Total length always 95 characters."
+        },
+        "signed_fields": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "Platform": {
+      "type": "object",
+      "required": ["id", "url"],
+      "properties": {
+        "id":   { "type": "string" },
+        "url":  { "type": "string", "format": "uri" },
+        "name": { "type": "string" },
+        "attestation_url": { "type": "string", "format": "uri" }
+      },
+      "additionalProperties": true
+    },
+    "ContentItem": {
+      "type": "object",
+      "required": ["id", "type", "data", "updated_at"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string" },
+        "schema": { "type": "string" },
+        "data": { "type": ["object", "array", "string", "null"] },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "media_refs": { "type": "array", "items": { "type": "string" } },
+        "pinned": {
+          "type": "boolean",
+          "default": false,
+          "description": "AIDP v0.4: whether forcibly included in aidp.json regardless of type strategy"
+        }
+      },
+      "additionalProperties": true
+    },
+    "Content": {
+      "type": "object",
+      "description": "Content Endpoint response. See spec §8.7.",
+      "required": ["$aidp", "@type", "id", "entity", "url", "updated_at", "data"],
+      "properties": {
+        "$aidp": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "@type": { "const": "Content" },
+        "id": { "type": "string" },
+        "entity": {
+          "type": "object",
+          "required": ["id", "directive_url"],
+          "properties": {
+            "id": { "type": "string" },
+            "directive_url": { "type": "string", "format": "uri" }
+          },
+          "additionalProperties": true
+        },
+        "url": { "type": "string", "format": "uri" },
+        "type": { "type": "string" },
+        "title": { "type": ["object", "string"] },
+        "language": { "type": "string" },
+        "published_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "version": { "type": "string" },
+        "author": { "type": "object", "additionalProperties": true },
+        "data": {
+          "type": "object",
+          "anyOf": [
+            { "required": ["body"] },
+            { "required": ["summary"] }
+          ],
+          "properties": {
+            "format": { "type": "string" },
+            "summary": { "type": "string" },
+            "body": { "type": "string" },
+            "sections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          },
+          "additionalProperties": true
+        },
+        "media": { "type": "array" },
+        "directives": { "type": "object", "additionalProperties": true },
+        "links": { "type": "object", "additionalProperties": true },
+        "verification": { "type": "object", "additionalProperties": true },
+        "pinned": {
+          "type": "boolean",
+          "default": false,
+          "description": "AIDP v0.4: whether forcibly included in aidp.json regardless of type strategy"
+        },
+        "_proof": { "$ref": "#/$defs/Proof" },
+        "_proofs": { "type": "array", "items": { "$ref": "#/$defs/Proof" }, "minItems": 1 }
+      },
+      "additionalProperties": true,
+      "not": { "required": ["_proof", "_proofs"] }
+    },
+    "ContentPointer": {
+      "type": "object",
+      "description": "Inline signed pointer. See spec §8.9.1.",
+      "required": ["$aidp", "@type", "entity", "content"],
+      "properties": {
+        "$aidp": { "type": "string" },
+        "@type": { "const": "ContentPointer" },
+        "entity": {
+          "type": "object",
+          "required": ["id", "directive_url"],
+          "properties": {
+            "id": { "type": "string" },
+            "directive_url": { "type": "string", "format": "uri" }
+          },
+          "additionalProperties": true
+        },
+        "content": {
+          "type": "object",
+          "required": ["id", "url", "updated_at", "directive_url"],
+          "properties": {
+            "id": { "type": "string" },
+            "url": { "type": "string", "format": "uri" },
+            "updated_at": { "type": "string", "format": "date-time" },
+            "directive_url": { "type": "string", "format": "uri" }
+          },
+          "additionalProperties": true
+        },
+        "_proof": { "$ref": "#/$defs/Proof" },
+        "_proofs": { "type": "array", "items": { "$ref": "#/$defs/Proof" }, "minItems": 1 }
+      },
+      "additionalProperties": false,
+      "not": { "required": ["_proof", "_proofs"] }
+    },
+    "ContentDirectory": {
+      "type": "object",
+      "description": "Paged content directory. See spec §8.8.",
+      "required": ["$aidp", "@type", "entity", "total", "page", "page_size", "items"],
+      "properties": {
+        "$aidp": { "type": "string" },
+        "@type": { "const": "ContentDirectory" },
+        "entity": {
+          "type": "object",
+          "required": ["id"],
+          "properties": { "id": { "type": "string" } },
+          "additionalProperties": true
+        },
+        "total": { "type": "integer", "minimum": 0 },
+        "page": { "type": "integer", "minimum": 1 },
+        "page_size": { "type": "integer", "minimum": 1, "maximum": 1000 },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "url", "updated_at", "directive_url"],
+            "properties": {
+              "id": { "type": "string" },
+              "url": { "type": "string", "format": "uri" },
+              "type": { "type": "string" },
+              "language": { "type": "string" },
+              "updated_at": { "type": "string", "format": "date-time" },
+              "directive_url": { "type": "string", "format": "uri" },
+              "pinned": {
+                "type": "boolean",
+                "default": false,
+                "description": "AIDP v0.4: whether forcibly included in aidp.json regardless of type strategy"
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "next": { "type": ["string", "null"], "format": "uri" },
+        "_proof": { "$ref": "#/$defs/Proof" },
+        "_proofs": { "type": "array", "items": { "$ref": "#/$defs/Proof" }, "minItems": 1 }
+      },
+      "additionalProperties": false,
+      "not": { "required": ["_proof", "_proofs"] }
+    },
+    "VerificationResponse": {
+      "type": "object",
+      "description": "Canonical verification endpoint response. See spec §8.12.",
+      "required": ["$aidp", "@type", "valid"],
+      "properties": {
+        "$aidp": { "type": "string" },
+        "@type": { "const": "VerificationResponse" },
+        "valid": { "type": "boolean" },
+        "current_version": { "type": ["integer", "string"] },
+        "current_updated_at": { "type": "string", "format": "date-time" },
+        "current_proof_id": { "type": "string" },
+        "expires_at": { "type": "string", "format": "date-time" },
+        "revoked": { "type": "boolean" },
+        "platform": { "type": "string" },
+        "reason": {
+          "type": "string",
+          "enum": ["revoked", "expired", "superseded", "unknown"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "TrustProviderKeys": {
+      "type": "object",
+      "description": "JWKS for a trust provider. See spec §8.11.",
+      "required": ["$aidp", "@type", "issuer", "keys"],
+      "properties": {
+        "$aidp": { "type": "string" },
+        "@type": { "const": "TrustProviderKeys" },
+        "issuer": { "type": "string", "format": "uri" },
+        "keys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["kid", "kty", "crv", "x", "use", "alg"],
+            "properties": {
+              "kid": { "type": "string" },
+              "kty": { "type": "string", "enum": ["OKP"] },
+              "crv": { "type": "string", "enum": ["Ed25519"] },
+              "x":   { "type": "string" },
+              "use": { "type": "string", "enum": ["sig"] },
+              "alg": { "type": "string", "enum": ["EdDSA"] },
+              "valid_from":  { "type": "string", "format": "date-time" },
+              "valid_until": { "type": "string", "format": "date-time" },
+              "rotation":    { "type": "string", "enum": ["scheduled", "emergency"] }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "RevocationList": {
+      "type": "object",
+      "description": "Revocation list. See spec §8.13.",
+      "required": ["$aidp", "@type", "issuer", "generated_at", "revocations"],
+      "properties": {
+        "$aidp": { "type": "string" },
+        "@type": { "const": "RevocationList" },
+        "issuer": { "type": "string", "format": "uri" },
+        "generated_at": { "type": "string", "format": "date-time" },
+        "expires_at": { "type": "string", "format": "date-time" },
+        "revocations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["reason", "revoked_at"],
+            "anyOf": [
+              { "required": ["entity_id"] },
+              { "required": ["content_id"] },
+              { "required": ["key_id"] }
+            ],
+            "properties": {
+              "entity_id": { "type": "string" },
+              "content_id": { "type": "string" },
+              "key_id": { "type": "string" },
+              "reason": {
+                "type": "string",
+                "description": "Non-exhaustive enum: fraud · compromised · superseded · expired · deprecated · policy_violation"
+              },
+              "revoked_at": { "type": "string", "format": "date-time" }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "WebhookInvalidation": {
+      "type": "object",
+      "description": "Cache invalidation webhook payload. See spec §8.10.",
+      "required": ["$aidp", "event", "entity_id", "scope", "timestamp"],
+      "properties": {
+        "$aidp": { "type": "string" },
+        "event": { "type": "string", "const": "directive.updated" },
+        "entity_id": { "type": "string" },
+        "scope": { "type": "string", "enum": ["entity", "content"] },
+        "content_id": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

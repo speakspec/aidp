@@ -6,7 +6,7 @@ description: AIDP 協議各版本的詳細變更紀錄
 
 所有協議版本的變更紀錄。遵循 [Semantic Versioning](https://semver.org/)。
 
-## v0.4.1 (2026-05-12 已釋出)
+## v0.4.1 (2026-05-13 已釋出)
 
 > **狀態：** 已釋出，tag `v0.4.1`。基於 v0.4.0 的 hotfix。
 
