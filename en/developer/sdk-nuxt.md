@@ -29,7 +29,7 @@ export default defineNuxtConfig({
 
 | Option | Required | Default | Notes |
 |---|---|---|---|
-| `entityId` | ✅ | — | Your SpeakSpec entity AIDP id (from dashboard) |
+| `entityId` | ✅ | — | SpeakSpec entity AIDP id. **Must be the full URN form `urn:aidp:entity:<slug>`** (the Slug field on the dashboard shows this full value; using a bare slug returns 404) |
 | `apiKey` | ✅ | — | SpeakSpec API key (`aidp_…`); server-side only |
 | `webhookSecret` | when `/api/_aidp/invalidate` is reachable | — | Verifies §8.10 cache-invalidation deliveries |
 | `siteOrigin` | recommended | — | Your site's canonical origin (used for absolute URLs) |
