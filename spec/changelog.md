@@ -6,6 +6,21 @@ description: AIDP 協議各版本的詳細變更紀錄
 
 所有協議版本的變更紀錄。遵循 [Semantic Versioning](https://semver.org/)。
 
+## v0.4.1 (2026-05-12 已釋出)
+
+> **狀態：** 已釋出，tag `v0.4.1`。基於 v0.4.0 的 hotfix。
+
+### 新增
+- **Entity directive 根層 `_proof`** — `/.well-known/aidp.json` 文件根層現可帶 `_proof` 區塊，為 AI agent 第一個 fetch 的文件提供身分簽章錨點。`signed_fields` 刻意收斂為 `["entity.id", "entity.domain", "$aidp"]`（§4.8.1）。SpeakSpec 等代管 trust provider SHOULD 對 entity directive 簽章。
+- **JSON Schema artifact** `public/schema/v0.4.1.json`，新增根層 `_proof` 屬性參照既有 `$defs.Proof`；v0.4.0 artifact 保持不變。
+
+### 變更
+- §2 Document Structure 頂層欄位表新增 `_proof`（optional）。
+- §4.8 (`_proof`) 補述：entity-directive 簽章只 anchor 身分（不涵蓋 directive 內容）；需要 behavioral-rule 驗證的 agent MUST fetch per-content envelope，其 `_proof` 覆蓋 `directives`。
+
+### 向後相容
+- 純加性更新，相容於 v0.4.0。v0.4.0 未帶 `_proof` 的 entity directive 仍然是合法 v0.4.1 文件（依 §4.8.4 fall-through 視為未簽章處理）。
+
 ## v0.4.0 (2026-05-12 已釋出)
 
 ### 新增

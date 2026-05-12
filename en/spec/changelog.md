@@ -6,6 +6,21 @@ description: Detailed changelog for each version of the AIDP protocol
 
 Changelog for all protocol versions. Follows [Semantic Versioning](https://semver.org/).
 
+## [0.4.1] — 2026-05-12
+
+> **Status:** Released. Tag `v0.4.1`. Hotfix on top of v0.4.0.
+
+### Added
+- **Entity directive `_proof` (root-level)** — `/.well-known/aidp.json` MAY now carry a `_proof` block at the document root, anchoring the AI agent's first fetch. `signed_fields` are intentionally narrow: `["entity.id", "entity.domain", "$aidp"]` (§4.8.1). Hosted trust providers (e.g., SpeakSpec) SHOULD sign entity directives.
+- **JSON Schema artifact** `public/schema/v0.4.1.json` with a root-level `_proof` property referencing the existing `$defs.Proof`; v0.4.0 artifact unchanged.
+
+### Changed
+- §2 Document Structure top-level field table now lists `_proof` as optional.
+- §4.8 (`_proof`) clarifies that entity-directive proofs anchor identity only (not directive bodies); agents wanting behavioral-rule attestation MUST fetch per-content envelopes whose `_proof` covers `directives`.
+
+### Backward Compatibility
+- Purely additive on top of v0.4.0. v0.4.0 entity directives without `_proof` remain valid v0.4.1 documents (treated as unsigned per §4.8.4 fall-through rules).
+
 ## [0.4.0] — 2026-05-12
 
 ### Added
