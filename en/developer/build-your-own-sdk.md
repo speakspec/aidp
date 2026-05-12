@@ -13,7 +13,7 @@ The official SDKs cover [Nuxt](/en/developer/sdk-nuxt) / [Next.js](/en/developer
 | Capability | Required? | Behavior |
 |---|---|---|
 | Serve `/.well-known/aidp.json` | ✅ Required | Surface the SpeakSpec-signed entity directive on your domain |
-| Serve `/.well-known/aidp/content/{id}.json` | 🟡 Recommended | Per-content signed envelope (AIDP 0.3 §8.7) |
+| Serve `/.well-known/aidp/content/{id}.json` | 🟡 Recommended | Per-content signed envelope (AIDP 0.4 §8.7) |
 | Serve `/.well-known/aidp/content` | 🟡 Recommended | Paginated content directory (§8.8) |
 | Webhook receiver `/api/aidp/invalidate` | 🟡 Recommended | SpeakSpec evicts your server cache on directive changes (§8.10) |
 | AI bot impression tracking | 🟢 Bonus | Detect GPTBot / ClaudeBot etc. UAs and report stats |
@@ -47,16 +47,28 @@ ETag: "abc123"
 Content-Type: application/json
 
 {
-  "spec_version": "0.3.0",
+  "spec_version": "0.4.0",
   "entity_id": "urn:aidp:entity:your-slug",
   "entity": { "name": "...", "kind": "..." },
-  "facts": [...],
+  "content": [
+    { "id": "flagship-ramen", "type": "menu_item", "pinned": true, "...": "..." }
+  ],
+  "content_index": {
+    "url": "https://yoursite.com/.well-known/aidp/content/directory.json",
+    "types_inlined": ["faq", "service"],
+    "types_indexed": ["article", "event"],
+    "total_by_type": { "faq": 2, "service": 3, "article": 12, "event": 4 },
+    "pinned_count": 1,
+    "updated_at": "2026-05-12T10:00:00Z"
+  },
   "directives": {...},
   "_proof": { "algorithm": "ed25519", "signature": "..." }
 }
 ```
 
 `304 Not Modified` means nothing changed — keep serving cached.
+
+v0.4 adds the top-level `content_index` field so AI agents can tell at a glance which content types are inlined vs only listed via the directory, plus a `pinned: true|false` flag on each content envelope. You don't need to touch any of this when proxying upstream -- pass it through verbatim.
 
 ### Flow
 
@@ -360,12 +372,21 @@ Same flow, different URLs:
 - `type`
 - `language`
 - `updated_since` (ISO 8601)
+- `pinned` (`true` / `false`, v0.4+)
 
 Cache key MUST include a query fingerprint so distinct paginations / filters don't share a cache entry:
 
 ```
-key = "directory:{entity_id}:" + JSON.stringify({page, page_size, type, language, updated_since})
+key = "directory:{entity_id}:" + JSON.stringify({page, page_size, type, language, updated_since, pinned})
 ```
+
+### v0.4: `?pinned` filter and `pinned` flag
+
+- Directory endpoint accepts `?pinned=true` / `?pinned=false` query parameters; the response only includes items matching the flag
+- Every directory item and content envelope carries a `pinned: true|false` flag (v0.4+)
+- Pinned content always appears in `/.well-known/aidp.json`'s `content` array regardless of the type's delivery strategy, and is sorted first in directory responses
+
+You don't need to special-case any of these fields when proxying upstream — pass them through alongside the rest of the envelope.
 
 ## 3. Webhook receiver (§8.10)
 
@@ -378,7 +399,7 @@ X-AIDP-Timestamp: 2026-05-10T12:00:00Z
 X-AIDP-Signature: hmac-sha256=8f3c...
 
 {
-  "$aidp": "0.3.0",
+  "$aidp": "0.4.0",
   "event": "directive.updated",
   "scope": "entity",                    // or "content"
   "entity_id": "urn:aidp:entity:your-slug",
@@ -569,8 +590,9 @@ SPEAKSPEC_BOT_UPLOAD=true
 
 ## 9. Spec & tooling references
 
-- [AIDP 0.3 §4.8 Cryptographic Proof](/en/spec/transport#cryptographic-proof) — `_proof` block structure
-- [AIDP 0.3 §8.5–8.13 Transport](/en/spec/transport) — well-known routes + conditional fetch + webhook
+- [AIDP 0.4 §4.8 Cryptographic Proof](/en/spec/transport#cryptographic-proof) — `_proof` block structure
+- [AIDP 0.4 §8.5–8.14 Transport](/en/spec/transport) — well-known routes + conditional fetch + webhook + `content_index` / `?pinned` filter
+- [JSON Schema v0.4.0](/schema/v0.4.0.json) — machine-readable schema artifact
 - [Authenticated API](/en/api/authenticated) — `/public/entity/...` upstream contract
 - The three official SDKs are reference implementations. To compare details, read:
   - [`speakspec/nuxt`](https://github.com/speakspec/nuxt) — Nuxt 4, h3-tied
