@@ -4,7 +4,7 @@ AIDP 協議的版本規劃路線。
 
 ## 已釋出
 
-- [x] **v0.4.0**（2026-MM-DD）-- Content 投放策略：per-entity per-type `inline` / `directory` 切換；新增 `content_index` 頂層欄位（指向 directory + 哪些 type 是 inline vs indexed 的 metadata）；新增 `pinned` envelope 旗標（強制 inline 個別 content，不受 type 策略影響）；`/.well-known/aidp/content/directory.json` 支援 `?pinned=true|false` 過濾。
+- [x] **v0.4.0**（2026-05-12）-- Content 投放策略：per-entity per-type `inline` / `directory` 切換；新增 `content_index` 頂層欄位（指向 directory + 哪些 type 是 inline vs indexed 的 metadata）；新增 `pinned` envelope 旗標（強制 inline 個別 content，不受 type 策略影響）；`/.well-known/aidp/content/directory.json` 支援 `?pinned=true|false` 過濾。
 - [x] **v0.3.0**（2026-05-12）-- 三層解耦設計（Transport / Verification / Consumption）；`_proof` 密碼學簽章（`ed25519-jws`）；Content Endpoint（§8.7）+ Content Directory（§8.8）+ Inline Embedding（§8.9）；Webhook cache invalidation（§8.10，HMAC + replay protection）；JWKS（§8.11）/ Verification（§8.12）/ Revocation（§8.13）端點；JSON Schema artifact `v0.3.0.json`。
 - [x] **v0.2.0**（2026-04-28）-- 多型 LocalizedString：`name` / `description` 接受 bare string 或 `{default, [locale]: ...}` object 形式。Search trigger 改為索引 `name` 所有 locale 值（不只 `default`）。
 - [x] **v0.1.0**（2026-04-23）-- 初次公開釋出：entity、verification、content、directives、transport、projection、community integrity。

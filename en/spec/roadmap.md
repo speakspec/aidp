@@ -4,7 +4,7 @@ Version planning roadmap for the AIDP protocol.
 
 ## Released
 
-- [x] **v0.4.0** (2026-MM-DD) -- Content delivery strategy: per-entity per-type `inline` / `directory` switch; new top-level `content_index` field (pointer to the directory + metadata on which types are inlined vs indexed); new `pinned` envelope flag (force a content into `aidp.json` regardless of its type strategy); `/.well-known/aidp/content/directory.json` accepts `?pinned=true|false` filter.
+- [x] **v0.4.0** (2026-05-12) -- Content delivery strategy: per-entity per-type `inline` / `directory` switch; new top-level `content_index` field (pointer to the directory + metadata on which types are inlined vs indexed); new `pinned` envelope flag (force a content into `aidp.json` regardless of its type strategy); `/.well-known/aidp/content/directory.json` accepts `?pinned=true|false` filter.
 - [x] **v0.3.0** (2026-05-12) -- Three-layer decoupling design (Transport / Verification / Consumption); cryptographic `_proof` (`ed25519-jws`); Content Endpoint (§8.7) + Content Directory (§8.8) + Inline Embedding (§8.9); Webhook cache invalidation (§8.10, HMAC + replay protection); JWKS (§8.11) / Verification (§8.12) / Revocation (§8.13) endpoints; JSON Schema artifact `v0.3.0.json`.
 - [x] **v0.2.0** (2026-04-28) -- Polymorphic LocalizedString: `name` / `description` accept either bare string or `{default, [locale]: ...}` object form. Search trigger now indexes all locale values of `name` (not just `default`).
 - [x] **v0.1.0** (2026-04-23) -- Initial public release: entity, verification, content, directives, transport, projections, community integrity.

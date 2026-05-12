@@ -6,7 +6,7 @@ description: AIDP 協議各版本的詳細變更紀錄
 
 所有協議版本的變更紀錄。遵循 [Semantic Versioning](https://semver.org/)。
 
-## v0.4.0 (2026-MM-DD 已釋出)
+## v0.4.0 (2026-05-12 已釋出)
 
 ### 新增
 - **`content_index` 頂層欄位**（§8.14）— 指向 content directory 的指針 + 統計 metadata；標示哪些 type 完整內嵌、哪些只能透過 directory 端點取得

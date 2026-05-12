@@ -6,7 +6,7 @@ description: Detailed changelog for each version of the AIDP protocol
 
 Changelog for all protocol versions. Follows [Semantic Versioning](https://semver.org/).
 
-## [0.4.0] — 2026-MM-DD
+## [0.4.0] — 2026-05-12
 
 ### Added
 - **`content_index` top-level field** (§8.14) — pointer + metadata for the content directory; indicates which types are fully inlined vs only available via directory endpoint
