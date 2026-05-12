@@ -1,14 +1,14 @@
 ---
 spec: AIDP
-version: 0.4.0
+version: 0.4.1
 status: released
 released: 2026-05-12
-supersedes: v0.3.0
+supersedes: v0.4.0
 ---
 
 # AIDP — AI Directive Protocol
 
-> **Version:** 0.4.0
+> **Version:** 0.4.1
 > **Status:** Released
 > **Author:** Otis / SpeakSpec
 > **License:** MIT (or CC-BY-4.0 for spec text)
@@ -101,7 +101,8 @@ An AIDP document is a single JSON object with the following top-level structure:
   "content": [ ],
   "directives": { },
   "community": { },
-  "extensions": { }
+  "extensions": { },
+  "_proof": { }
 }
 ```
 
@@ -114,6 +115,7 @@ An AIDP document is a single JSON object with the following top-level structure:
 | `directives` | `Directives` | ❌ | Global response directives for AI |
 | `community` | `Community` | ❌ | Disputes, cross-references, and integrity signals (see Section 10) |
 | `extensions` | `object` | ❌ | Namespaced third-party extensions |
+| `_proof` | `Proof` | ❌ | Detached signature over identity fields (see §4.8); added in v0.4.1 |
 
 ---
 
@@ -729,7 +731,11 @@ Any AIDP payload — entity directive, content endpoint response, inline embeddi
 
 `_proof` is **optional and additive**. A payload without `_proof` is still valid AIDP; agents apply the trust rules in §4.7 (treat as self-attested unless `credential` provides another anchor).
 
+When the entity directive itself carries a `_proof`, the block sits at the **root** of the AIDP document (same nesting depth as `entity`, `directives`, `verification`). Hosted trust providers (e.g., SpeakSpec) SHOULD sign the entity directive because it is the first document an agent fetches and the anchor for follow-on content envelopes.
+
 #### 4.8.1 Structure
+
+Per-content envelope (§8.7) `_proof`:
 
 ```json
 {
@@ -751,6 +757,27 @@ Any AIDP payload — entity directive, content endpoint response, inline embeddi
   }
 }
 ```
+
+Entity directive (root-level) `_proof` — added in v0.4.1:
+
+```json
+{
+  "$aidp": "0.4.1",
+  "entity": { "id": "urn:aidp:entity:stockfeel", "domain": "stockfeel.com" },
+  "_proof": {
+    "type": "ed25519-jws",
+    "issuer": "https://speakspec.com",
+    "key_id": "speakspec-2026-Q2",
+    "issued_at": "2026-05-12T12:00:00Z",
+    "expires_at": "2026-05-12T13:00:00Z",
+    "canonical_url": "https://api.speakspec.com/v/stockfeel",
+    "signature": "ed25519:base64url-encoded-signature",
+    "signed_fields": ["entity.id", "entity.domain", "$aidp"]
+  }
+}
+```
+
+The entity-directive `signed_fields` set is intentionally narrow: it anchors identity (`entity.id`, `entity.domain`) and the protocol version (`$aidp`) without dragging in directive bodies, which churn far more often than identity. Agents that need behavioral-rule attestation MUST fetch the per-content envelope, whose `_proof` covers `directives` (§8.7).
 
 #### 4.8.2 Field Reference
 
