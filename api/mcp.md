@@ -16,6 +16,8 @@ POST /mcp
 
 **認證（選用）：** 在 header 加上 `X-API-Key: aidp_...` 可解鎖 50 個實體作用域工具，所有工具自動綁定至 key 對應的 entity。
 
+> **v0.4 起**：`list_contents` / `get_content` 仍回完整 content 集，與 well-known 的 inline/directory 策略獨立。
+
 ## 支援的方法
 
 | 方法 | 說明 |

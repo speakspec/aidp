@@ -129,6 +129,14 @@ Calling a write tool with a `read` key returns JSON-RPC error code `-32002` (INS
 
 See [API Reference: MCP](/en/api/mcp) for the full 50-tool mapping to REST endpoints.
 
+## v0.4 and MCP
+
+AIDP v0.4 introduces the `content_index` field, so `/.well-known/aidp.json` no longer inlines all content. However, MCP tools read the backend database directly and are **not affected by the well-known inline/directory strategy**:
+
+- `list_contents` / `get_content` and similar tools always return the full content list (including content of types in `directory` mode)
+- AI agents using MCP do not need to consult `content_index` first
+- If an agent uses the public well-known endpoint (no API key) instead, it must follow the `content_index.types_indexed` → directory rule
+
 ## Content Negotiation
 
 Use the Accept header to specify the response format:
