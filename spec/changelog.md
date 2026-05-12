@@ -6,12 +6,12 @@ description: AIDP 協議各版本的詳細變更紀錄
 
 所有協議版本的變更紀錄。遵循 [Semantic Versioning](https://semver.org/)。
 
-## [0.4.0] — 2026-MM-DD
+## v0.4.0 (2026-MM-DD 已釋出)
 
 ### 新增
-- **`content_index` 頂層欄位**（§8.X）— 指向 content directory 的指針 + 統計 metadata；標示哪些 type 完整內嵌、哪些只能透過 directory 端點取得
+- **`content_index` 頂層欄位**（§8.14）— 指向 content directory 的指針 + 統計 metadata；標示哪些 type 完整內嵌、哪些只能透過 directory 端點取得
 - **`pinned` envelope 欄位**（§4）— 布林旗標，強制單篇 content 出現在 `aidp.json` 中，無論其 type 策略
-- **`?pinned=true|false` 過濾參數**於 `/.well-known/aidp/content/directory.json`（§8.X）
+- **`?pinned=true|false` 過濾參數**於 `/.well-known/aidp/content/directory.json`（§8.14）
 
 ### 變更
 - `aidp.json.content` 現在依 entity content strategy 過濾（per-type `inline` / `directory`）。預設值：所有 type 為 `inline`（`content_strategy` 未設時保留既有行為）。

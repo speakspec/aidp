@@ -9,9 +9,9 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 > **Status:** Released. Tag `v0.4.0`. Spec text frozen for v0.4 series.
 
 ### Added
-- **`content_index` top-level field** (§8.X) — pointer + metadata for the content directory; indicates which types are fully inlined vs only available via directory endpoint
+- **`content_index` top-level field** (§8.14) — pointer + metadata for the content directory; indicates which types are fully inlined vs only available via directory endpoint
 - **`pinned` envelope field** (§4) — boolean flag to force a content into `aidp.json` regardless of its type strategy
-- **`?pinned=true|false` filter** on `/.well-known/aidp/content/directory.json` (§8.X)
+- **`?pinned=true|false` filter** on `/.well-known/aidp/content/directory.json` (§8.14)
 
 ### Changed
 - `aidp.json.content` is now filtered per entity content strategy (per-type `inline` / `directory`). Default: all types `inline` (existing behavior preserved when `content_strategy` is unset).
