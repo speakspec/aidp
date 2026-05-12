@@ -16,7 +16,7 @@ pnpm add @speakspec/next
 
 ```env
 # .env.local
-SPEAKSPEC_ENTITY_ID=your-entity-slug
+SPEAKSPEC_ENTITY_ID=urn:aidp:entity:your-slug
 SPEAKSPEC_API_KEY=aidp_xxxxxxxxxxx
 SPEAKSPEC_WEBHOOK_SECRET=...
 NEXT_PUBLIC_SPEAKSPEC_SITE_ORIGIN=https://yoursite.com
@@ -26,7 +26,7 @@ SPEAKSPEC_BOT_UPLOAD=true
 
 | Variable | Required | Notes |
 |---|---|---|
-| `SPEAKSPEC_ENTITY_ID` | ✅ | AIDP entity id (provided by your SpeakSpec dashboard) |
+| `SPEAKSPEC_ENTITY_ID` | ✅ | SpeakSpec entity AIDP id. **Must be the full URN form `urn:aidp:entity:<slug>`** (the Slug field on the dashboard shows this full value; using a bare slug returns 404) |
 | `SPEAKSPEC_API_KEY` | ✅ | SpeakSpec API key (`aidp_…`), server-side only |
 | `SPEAKSPEC_WEBHOOK_SECRET` | when webhook route reachable | Verifies §8.10 cache-invalidation webhook |
 | `NEXT_PUBLIC_SPEAKSPEC_SITE_ORIGIN` | recommended | Canonical origin of your site |

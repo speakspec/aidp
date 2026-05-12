@@ -29,7 +29,7 @@ export default defineNuxtConfig({
 
 | 設定 | 必填 | 預設 | 說明 |
 |---|---|---|---|
-| `entityId` | ✅ | — | SpeakSpec entity 的 AIDP id（dashboard 提供） |
+| `entityId` | ✅ | — | SpeakSpec entity 的 AIDP id。**必須是完整 URN 格式 `urn:aidp:entity:<slug>`**（dashboard 的 Slug 欄位顯示的就是這串完整值；填短 slug 會 404） |
 | `apiKey` | ✅ | — | SpeakSpec API key（`aidp_…`），server-side only |
 | `webhookSecret` | webhook 路由可達時 | — | 驗證 §8.10 cache-invalidation webhook |
 | `siteOrigin` | 推薦 | — | 您站台的正式 origin（用於組 absolute URL） |

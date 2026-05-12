@@ -28,6 +28,8 @@ description: 沒有用 Nuxt / Next / Astro？這份文件帶你用任何後端�
 - **HMAC 比對用 constant-time compare**（Python `hmac.compare_digest` / Go `hmac.Equal` / PHP `hash_equals` / Ruby `Rack::Utils.secure_compare`）— 絕對不要用 `==`，會洩漏時間旁通訊息。
 - **Webhook 端點要在 CDN/WAF 設 rate limit**（建議 60 req/min/IP）— HMAC 驗證前 SDK 會把 body 上限定在 64 KB，避免 attacker 用大 body 浪費你的 SHA-256 CPU。
 
+> **Entity ID 格式（重要）**：本頁所有 `{entityId}` 引用都是完整 URN（例：`urn:aidp:entity:speakspec`），不是 short slug。SpeakSpec server 不接受 short slug — 填短的會 404。dashboard 的 Slug 欄位顯示的就是這串完整值。下面範例中的 `your-slug` 是「URN 後半段」變數，組合時要拼成 `urn:aidp:entity:your-slug` 才能放進 URL path 或環境變數。
+
 ## 1. Serve `/.well-known/aidp.json`
 
 ### 上游契約
@@ -103,7 +105,7 @@ from fastapi import FastAPI, Request, Response, HTTPException
 app = FastAPI()
 r = redis.from_url("redis://localhost")
 
-ENTITY_ID = "your-slug"
+ENTITY_ID = "urn:aidp:entity:your-slug"
 API_KEY   = "ssk_xxx"      # from env, NEVER hardcode
 ENDPOINT  = "https://api.speakspec.com"
 TTL_SEC   = 300
@@ -278,7 +280,7 @@ func (e *httpError) Error() string { return "upstream status" }
 // /.well-known/aidp.json.php — 用 .htaccess 改寫到此
 declare(strict_types=1);
 
-const ENTITY_ID = 'your-slug';
+const ENTITY_ID = 'urn:aidp:entity:your-slug';
 const API_KEY   = 'ssk_xxx';        // 從 env 讀，不要 hardcode
 const ENDPOINT  = 'https://api.speakspec.com';
 const TTL_SEC   = 300;
@@ -508,7 +510,7 @@ Content-Type: application/json
     "path": "/articles/etf-explainer",
     "user_agent": "Mozilla/5.0 (compatible; GPTBot/1.0; ...)",
     "ts": "2026-05-10T12:00:00Z",
-    "entity_id": "your-slug"
+    "entity_id": "urn:aidp:entity:your-slug"
   }
 ]
 ```
@@ -571,7 +573,7 @@ webhook：用任何 SpeakSpec 後台的「test webhook」按鈕觸發，看你�
 ## 8. 環境變數命名（建議跟官方 SDK 對齊）
 
 ```env
-SPEAKSPEC_ENTITY_ID=your-slug
+SPEAKSPEC_ENTITY_ID=urn:aidp:entity:your-slug
 SPEAKSPEC_API_KEY=ssk_xxxxxxxxxxxx
 SPEAKSPEC_WEBHOOK_SECRET=...
 SPEAKSPEC_ENDPOINT=https://api.speakspec.com
