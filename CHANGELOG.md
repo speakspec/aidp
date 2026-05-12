@@ -4,6 +4,22 @@ All notable changes to the AIDP protocol are documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.4.0] — 2026-MM-DD
+
+> **Status:** Released. Tag `v0.4.0`. Spec text frozen for v0.4 series.
+
+### Added
+- **`content_index` top-level field** (§8.X) — pointer + metadata for the content directory; indicates which types are fully inlined vs only available via directory endpoint
+- **`pinned` envelope field** (§4) — boolean flag to force a content into `aidp.json` regardless of its type strategy
+- **`?pinned=true|false` filter** on `/.well-known/aidp/content/directory.json` (§8.X)
+
+### Changed
+- `aidp.json.content` is now filtered per entity content strategy (per-type `inline` / `directory`). Default: all types `inline` (existing behavior preserved when `content_strategy` is unset).
+
+### Upgrade semantics
+- v0.4 is a hard cut from v0.3 (single internal user; no rolling compatibility window). v0.3 clients are not guaranteed to work against v0.4 servers.
+- New entities and unmigrated entities default to `content_strategy = {}` which is interpreted as all types `inline`, preserving v0.3 behavior at the wire level until the entity owner opts into directory mode.
+
 ## [0.3.0] — 2026-05-12
 
 > **Status:** Released. Tag `v0.3.0`. Spec text frozen for v0.3 series.
