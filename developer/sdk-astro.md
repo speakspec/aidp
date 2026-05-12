@@ -16,13 +16,22 @@ pnpm add @speakspec/astro
 
 ```env
 # .env
-SPEAKSPEC_ENTITY_ID=your-entity-slug
+SPEAKSPEC_ENTITY_ID=urn:aidp:entity:your-slug
 SPEAKSPEC_API_KEY=aidp_xxxxxxxxxxx
 SPEAKSPEC_WEBHOOK_SECRET=...
 PUBLIC_SPEAKSPEC_SITE_ORIGIN=https://yoursite.com
 SPEAKSPEC_BOT_TRACKING=true
 SPEAKSPEC_BOT_UPLOAD=true
 ```
+
+| 變數 | 必填 | 說明 |
+|---|---|---|
+| `SPEAKSPEC_ENTITY_ID` | ✅ | SpeakSpec entity 的 AIDP id。**必須是完整 URN 格式 `urn:aidp:entity:<slug>`**（dashboard 的 Slug 欄位顯示的就是這串完整值；填短 slug 會 404）|
+| `SPEAKSPEC_API_KEY` | ✅ | SpeakSpec API key（`aidp_…`），server-side only |
+| `SPEAKSPEC_WEBHOOK_SECRET` | webhook 路由可達時 | 驗證 §8.10 cache-invalidation webhook |
+| `PUBLIC_SPEAKSPEC_SITE_ORIGIN` | 推薦 | 您站台的正式 origin |
+| `SPEAKSPEC_BOT_TRACKING` | — | 開啟 AI crawler 偵測（`true` / `false`）|
+| `SPEAKSPEC_BOT_UPLOAD` | — | 開啟把 impression 上送 SpeakSpec |
 
 ## Wire well-known 路由
 
