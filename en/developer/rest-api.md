@@ -112,6 +112,52 @@ curl -X POST https://api.speakspec.com/api/entities/{entityId}/contents \
 
 For the full endpoint catalog, scope rules, and error codes, see [Authenticated API reference](/en/api/authenticated).
 
+## Content Strategy (v0.4+)
+
+The following endpoints use user JWT authentication (API keys are not accepted). The caller must be an owner / member of the entity.
+
+### GET `/api/v1/entities/{id}/content-strategy`
+
+Read the entity's per-type publication strategy along with suggestion stats.
+
+**Response 200**:
+
+```json
+{
+  "strategy": { "article": "directory", "faq": "inline" },
+  "stats": [
+    {
+      "type": "article",
+      "count": 1240,
+      "estimated_size_bytes": 4800000,
+      "current_mode": "directory",
+      "suggested_mode": "directory",
+      "suggestion_reason": "count_exceeds_threshold"
+    }
+  ]
+}
+```
+
+### PUT `/api/v1/entities/{id}/content-strategy`
+
+Whole-body replace (**not merge**) of the entity strategy. Missing keys are treated as removed (revert to default `inline`).
+
+**Request body**: `{ "<content_type>": "inline" | "directory" }`
+
+**Response**: 204 No Content / 400 Bad Request (mode not `inline` or `directory`) / 403 Forbidden / 404 Not Found
+
+### POST `/api/v1/entities/{id}/contents/{contentId}/pin`
+
+Mark a content as pinned.
+
+**Response**: 204 No Content / 404 Not Found (content does not exist or does not belong to the entity)
+
+### DELETE `/api/v1/entities/{id}/contents/{contentId}/pin`
+
+Remove the pinned flag.
+
+**Response**: 204 No Content / 404 Not Found
+
 ## Member Invitation Endpoints
 
 Invitation endpoints use user JWT authentication (API keys are not accepted).

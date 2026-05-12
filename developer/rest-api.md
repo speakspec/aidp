@@ -112,6 +112,52 @@ curl -X POST https://api.speakspec.com/api/entities/{entityId}/contents \
 
 完整端點清單、Scope 規則、錯誤碼請見：[Authenticated API 參考](/api/authenticated)。
 
+## Content Strategy（v0.4+）
+
+以下端點以使用者 JWT 認證（不接受 API Key），呼叫者須為該 entity 的 owner / member。
+
+### GET `/api/v1/entities/{id}/content-strategy`
+
+讀取 entity 的 per-type 投放策略與統計建議。
+
+**Response 200**：
+
+```json
+{
+  "strategy": { "article": "directory", "faq": "inline" },
+  "stats": [
+    {
+      "type": "article",
+      "count": 1240,
+      "estimated_size_bytes": 4800000,
+      "current_mode": "directory",
+      "suggested_mode": "directory",
+      "suggestion_reason": "count_exceeds_threshold"
+    }
+  ]
+}
+```
+
+### PUT `/api/v1/entities/{id}/content-strategy`
+
+整批 replace（**非 merge**）entity 的 strategy。缺失的 key 視為刪除該設定（回到預設 `inline`）。
+
+**Request body**：`{ "<content_type>": "inline" | "directory" }`
+
+**Response**：204 No Content / 400 Bad Request（mode 不是 `inline` 或 `directory`）/ 403 Forbidden / 404 Not Found
+
+### POST `/api/v1/entities/{id}/contents/{contentId}/pin`
+
+設定 content 為 pinned。
+
+**Response**：204 No Content / 404 Not Found（content 不存在或不屬於該 entity）
+
+### DELETE `/api/v1/entities/{id}/contents/{contentId}/pin`
+
+取消 pin。
+
+**Response**：204 No Content / 404 Not Found
+
 ## Member 邀請端點
 
 邀請端點以使用者 JWT 認證（不接受 API Key）。
