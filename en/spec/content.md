@@ -352,3 +352,31 @@ Media items support specialized directives in addition to standard content direc
 | `licensing.attribution_required` | `boolean` | Whether source attribution is required |
 | `licensing.modification_allowed` | `boolean` | Whether AI may crop, filter, or modify |
 | `licensing.ai_training_allowed` | `boolean` | Whether AI providers may use for model training |
+
+## Inline vs Directory (v0.4+)
+
+Each entity can configure a **publication strategy** per content type:
+
+- `inline`: the type's content appears in full within `/.well-known/aidp.json`'s `content` array
+- `directory`: the type's content is **not** included in `aidp.json.content`; AI agents must fetch `/.well-known/aidp/content/directory.json`
+
+Default: all types are `inline` (equivalent to v0.3 behavior). Entity owners switch this via the dashboard.
+
+The `content_index` field in `aidp.json` (v0.4+) declares:
+
+- `types_inlined`: types fully inlined
+- `types_indexed`: types available only via directory
+- `total_by_type`: count per type
+
+AI agents should consult `content_index.types_indexed` to determine whether to fetch the directory endpoint.
+
+## Pinned content (v0.4+)
+
+Any content can be marked `pinned: true`. Regardless of its type strategy, pinned content always appears in `/.well-known/aidp.json`'s `content` array.
+
+Use cases:
+
+- Force "featured / pinned" content into `aidp.json` even when the type is set to `directory`
+- Even for `inline` types, the `pinned` flag lets AI agents identify content the publisher actively promotes
+
+Order: pinned items are always sorted first in `content` (by `pinned_at` desc), followed by non-pinned items (by `updated_at` desc).

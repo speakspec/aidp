@@ -1,14 +1,14 @@
 ---
 spec: AIDP
-version: 0.3.0
+version: 0.4.0
 status: released
 released: 2026-05-12
-supersedes: v0.2.0
+supersedes: v0.3.0
 ---
 
 # AIDP — AI Directive Protocol
 
-> **Version:** 0.3.0
+> **Version:** 0.4.0
 > **Status:** Released
 > **Author:** Otis / SpeakSpec
 > **License:** MIT (or CC-BY-4.0 for spec text)
@@ -895,6 +895,7 @@ The `content` array holds the actual structured data entries.
 | `market` | `Market \| null` | ❌ | Override entity market for this content (see 3.5). Absent = inherit entity market |
 | `variant_of` | `string \| null` | ❌ | Content ID of the base content this is a variant of (see 5.4) |
 | `variant_delta` | `object \| null` | When `variant_of` is set | Only the fields that differ from the base content's `data` (see 5.4) |
+| `pinned` | `boolean` | ❌ | Default `false` (v0.4+). Whether this content is forcibly included in `aidp.json` regardless of type strategy. Visible in both `aidp.json` and `directory.json`. See §8.14. |
 
 Content `data` objects MAY include a `links` array following the same Action Links schema defined in Section 3.4. These links are scoped to the specific content item and tracked independently.
 
@@ -1895,6 +1896,8 @@ A pageable index of all content items for an entity. Equivalent to `sitemap.xml`
 
 **Filtering (optional):** Implementations MAY support `?language=zh-TW`, `?type=article`, `?updated_since=2026-04-01T00:00:00Z`. Unsupported filters return `400`.
 
+- `?pinned=true` / `?pinned=false` (v0.4+) — filter by pinned state
+
 ### 8.9 Inline Embedding
 
 > Added in v0.3.0.
@@ -2185,6 +2188,54 @@ Cache-Control: public, max-age=3600
 ```
 
 1-hour `max-age`. Agents SHOULD refresh the list at least daily and cross-check signatures against revoked `key_id`s before trusting them.
+
+### 8.14 content_index field (v0.4+)
+
+> Added in v0.4.0.
+
+In v0.4, `aidp.json` adds a top-level `content_index` field that signals the completeness of the `content` array and points to the content directory. Each entity may configure a per-type strategy of `inline` or `directory`:
+
+- `inline`: the type's full content appears directly within `aidp.json.content`
+- `directory`: the type's content does **not** appear in `aidp.json.content` (**except for items where `pinned = true`**); agents fetch `/.well-known/aidp/content/directory.json` instead
+
+`content_index` field shape:
+
+```json
+{
+  "content_index": {
+    "url": "https://example.com/.well-known/aidp/content/directory.json",
+    "types_inlined": ["faq", "service", "policy"],
+    "types_indexed": ["article", "event", "product"],
+    "total_by_type": {
+      "article": 1240, "event": 387, "product": 52000,
+      "faq": 18, "service": 6, "policy": 4
+    },
+    "pinned_count": 3,
+    "updated_at": "2026-05-12T10:00:00Z"
+  }
+}
+```
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `url` | URI | yes | The full URL of the content directory endpoint |
+| `types_inlined` | string[] | yes | Types whose full content is present in `aidp.json.content` |
+| `types_indexed` | string[] | yes | Types whose content is only available via the directory endpoint (except for `pinned=true` items) |
+| `total_by_type` | map<string, int> | yes | Total count per type (published only). Zero-count types are omitted |
+| `pinned_count` | int | yes | Total pinned content count across all types |
+| `updated_at` | RFC3339 | yes | Latest published-content change timestamp (entity-wide, including directory-only types) |
+
+Constraints: `types_inlined ∩ types_indexed = ∅`, and their union equals the key set of `total_by_type`.
+
+#### content array filtering rules
+
+A content envelope appears in `aidp.json.content` if and only if:
+1. Its `type` strategy = `inline`, OR
+2. Its `pinned = true` (regardless of strategy)
+
+Sort: pinned items first (`pinned_at` desc), then non-pinned by `updated_at` desc.
+
+**Note on signature scope**: The `pinned` field is included in the envelope serialization but is **not** part of the `signed_fields` set (v0.4 keeps the existing signature algorithm). Future spec versions may extend `signed_fields` to cover booleans.
 
 ---
 

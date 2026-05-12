@@ -16,6 +16,8 @@ Uses the JSON-RPC 2.0 protocol.
 
 **Authentication (optional):** add `X-API-Key: aidp_...` header to unlock 50 entity-scoped tools. All such tools are automatically bound to the entity owning the API key.
 
+> **Since v0.4**: `list_contents` / `get_content` still return the full content set, independent of the well-known inline/directory strategy.
+
 ## Supported Methods
 
 | Method | Description |

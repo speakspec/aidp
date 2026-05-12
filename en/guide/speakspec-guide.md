@@ -19,6 +19,18 @@ On your first login, the system will launch the Onboarding Wizard to guide you t
 
 The system checks slug availability in real time during setup. If a slug is reserved, you can submit a claim request.
 
+## Connecting SpeakSpec to your site {#integrate}
+
+The standard way to integrate SpeakSpec is via the **official SDKs**:
+
+- [Nuxt 4](/en/developer/sdk-nuxt) -- `@speakspec/nuxt`
+- [Next 15 (App Router)](/en/developer/sdk-next) -- `@speakspec/next`
+- [Astro 5](/en/developer/sdk-astro) -- `@speakspec/astro`
+
+The SDKs handle `/.well-known/aidp.json` proxying, `content_index` routes, webhook cache invalidation, and AI bot traffic detection -- you don't need to build any of this yourself.
+
+If your backend is not one of the three above (Django / Rails / Express / plain Go HTTP server, etc.), see [Build Your Own SDK](/en/developer/build-your-own-sdk) for a guide on implementing the same contract in any stack.
+
 ## Entity Management {#entity}
 
 An Entity is your identity within the AIDP protocol. Each Entity represents a distinct organization or individual and has a unique AIDP ID.
@@ -142,6 +154,29 @@ SpeakSpec supports 11 content types:
 | policy | Policy |
 | dataset | Dataset |
 | media | Media |
+
+### Delivery strategy (inline / directory)
+
+Starting in v0.4, each entity can configure a per-content-type delivery strategy controlling whether content of that type is inlined into `/.well-known/aidp.json` or surfaced only via the directory endpoint:
+
+- **inline** (default): Content of this type appears in full in the `content` array of `aidp.json`
+- **directory**: Content of this type is **not** inlined in `aidp.json`; AI agents must fetch it via `/.well-known/aidp/content/directory.json`
+
+In the "Content delivery strategy" section of the Entity edit page, each content type can be toggled independently. The dashboard shows the current item count and estimated payload size for each type; once the count exceeds 50 or the size exceeds 256 KB, switching to directory is recommended to prevent `aidp.json` from bloating and hurting AI agent fetch efficiency.
+
+Regardless of strategy, AI agents can read the top-level `content_index` field of `aidp.json` to learn which types are inlined, which are indexed, and where the corresponding directory lives.
+
+### Pinned content (pin)
+
+Starting in v0.4, any single content item can be marked as **pinned** from its edit page:
+
+- Pinned content **always** appears in `aidp.json`'s `content` array, regardless of its type's delivery strategy
+- In the directory endpoint, pinned content is sorted first and the envelope carries a `pinned: true` flag
+- `/.well-known/aidp/content/directory.json` accepts `?pinned=true` / `?pinned=false` query parameters for filtering
+
+**Use cases:**
+- When a type is set to the directory strategy but you want to push a few "featured" items directly to AI agents (flagship products, latest announcements, etc.)
+- To signal "this is a publisher-prioritized item" to AI agents
 
 ### Creating Content
 

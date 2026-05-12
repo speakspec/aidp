@@ -129,6 +129,14 @@ AIDP 文件作為 MCP Resource 公開，適合需要瀏覽和讀取結構化資�
 
 完整 50 個工具與 REST 路徑的對照表見 [API 參考：MCP](/api/mcp)。
 
+## v0.4 與 MCP 的關係
+
+AIDP v0.4 引入 `content_index` 欄位讓 `/.well-known/aidp.json` 不再內嵌所有 content。但 MCP tools 仍直接讀後端資料庫，**不受 well-known inline/directory 策略影響**：
+
+- `list_contents` / `get_content` 等 tool 永遠回傳完整 content list（含 directory 模式的 type）
+- AI agent 透過 MCP 取得內容時不需先檢查 `content_index`
+- 但若 agent 改走 well-known 公開端點（無 API key），則要遵守 `content_index.types_indexed` → 走 directory 的規則
+
 ## Content Negotiation
 
 透過 Accept header 可指定回傳格式：

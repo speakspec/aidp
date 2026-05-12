@@ -13,7 +13,7 @@ description: 沒有用 Nuxt / Next / Astro？這份文件帶你用任何後端�
 | 能力 | 必要？ | 行為 |
 |---|---|---|
 | Serve `/.well-known/aidp.json` | ✅ 必要 | 把 SpeakSpec 簽好的 entity directive 放在你的網域上 |
-| Serve `/.well-known/aidp/content/{id}.json` | 🟡 推薦 | 每篇 content 的簽章 envelope（per AIDP 0.3 §8.7） |
+| Serve `/.well-known/aidp/content/{id}.json` | 🟡 推薦 | 每篇 content 的簽章 envelope（per AIDP 0.4 §8.7） |
 | Serve `/.well-known/aidp/content` | 🟡 推薦 | 分頁 content 目錄（§8.8） |
 | Webhook receiver `/api/aidp/invalidate` | 🟡 推薦 | SpeakSpec 在 directive 變動時清你 server cache（§8.10） |
 | AI bot impression tracking | 🟢 加分 | 識別 GPTBot / ClaudeBot 等 UA 並回傳統計 |
@@ -47,16 +47,28 @@ ETag: "abc123"
 Content-Type: application/json
 
 {
-  "spec_version": "0.3.0",
+  "spec_version": "0.4.0",
   "entity_id": "urn:aidp:entity:your-slug",
   "entity": { "name": "...", "kind": "..." },
-  "facts": [...],
+  "content": [
+    { "id": "flagship-ramen", "type": "menu_item", "pinned": true, "...": "..." }
+  ],
+  "content_index": {
+    "url": "https://yoursite.com/.well-known/aidp/content/directory.json",
+    "types_inlined": ["faq", "service"],
+    "types_indexed": ["article", "event"],
+    "total_by_type": { "faq": 2, "service": 3, "article": 12, "event": 4 },
+    "pinned_count": 1,
+    "updated_at": "2026-05-12T10:00:00Z"
+  },
   "directives": {...},
   "_proof": { "algorithm": "ed25519", "signature": "..." }
 }
 ```
 
 `304 Not Modified` 代表沒變動，繼續用舊的 cached 資料。
+
+v0.4 新增 `content_index` 頂層欄位，讓 AI agent 一次掌握哪些 content type 是 inline、哪些只在 directory；以及單筆 content envelope 上的 `pinned: true|false` 旗標。你 proxy 上游時無須處理這些 -- pass-through 即可。
 
 ### 流程
 
@@ -360,12 +372,21 @@ function serve(array $b, ?string $inbound, bool $stale = false): void {
 - `type`
 - `language`
 - `updated_since`（ISO 8601）
+- `pinned`（`true` / `false`，v0.4+）
 
 cache key 必須含 query 的 fingerprint，否則不同分頁 / 過濾條件會互相覆蓋：
 
 ```
-key = "directory:{entity_id}:" + JSON.stringify({page, page_size, type, language, updated_since})
+key = "directory:{entity_id}:" + JSON.stringify({page, page_size, type, language, updated_since, pinned})
 ```
+
+### v0.4：`?pinned` 過濾與 `pinned` 旗標
+
+- Directory endpoint 接受 `?pinned=true` / `?pinned=false` query 參數，回應只包含對應旗標的內容
+- 每個 directory item 與 content envelope 都帶 `pinned: true|false` 旗標（v0.4+）
+- Pinned content 永遠出現在 `/.well-known/aidp.json` 的 `content` 陣列，無論其 type 的投放策略為何；在 directory 回應中排序在前
+
+當你 proxy 上游時無須對這些欄位做任何處理 -- 連同其餘 envelope 一起 pass-through 即可。
 
 ## 3. Webhook receiver（§8.10）
 
@@ -378,7 +399,7 @@ X-AIDP-Timestamp: 2026-05-10T12:00:00Z
 X-AIDP-Signature: hmac-sha256=8f3c...
 
 {
-  "$aidp": "0.3.0",
+  "$aidp": "0.4.0",
   "event": "directive.updated",
   "scope": "entity",                    // or "content"
   "entity_id": "urn:aidp:entity:your-slug",
@@ -569,8 +590,9 @@ SPEAKSPEC_BOT_UPLOAD=true
 
 ## 9. Spec & 工具參考
 
-- [AIDP 0.3 §4.8 Cryptographic Proof](/spec/transport#cryptographic-proof) — `_proof` 區塊結構
-- [AIDP 0.3 §8.5–8.13 Transport](/spec/transport) — well-known 路由 + 條件式抓取 + webhook
+- [AIDP 0.4 §4.8 Cryptographic Proof](/spec/transport#cryptographic-proof) — `_proof` 區塊結構
+- [AIDP 0.4 §8.5–8.14 Transport](/spec/transport) — well-known 路由 + 條件式抓取 + webhook + `content_index` / `?pinned` 過濾
+- [JSON Schema v0.4.0](/schema/v0.4.0.json) — 機器可讀 schema artifact
 - [Authenticated API](/api/authenticated) — `/public/entity/...` 上游契約
 - 三個官方 SDK 是 reference implementation — 想對照實作細節，看：
   - [`speakspec/nuxt`](https://github.com/speakspec/nuxt) — Nuxt 4，h3-tied

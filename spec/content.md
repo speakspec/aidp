@@ -352,3 +352,31 @@ Media 項目除了支援標準 content directives 外，還支援專用的 direc
 | `licensing.attribution_required` | `boolean` | 是否需要來源標註 |
 | `licensing.modification_allowed` | `boolean` | AI 是否可以裁切、濾鏡或修改 |
 | `licensing.ai_training_allowed` | `boolean` | AI 提供者是否可用於模型訓練 |
+
+## Inline vs Directory（v0.4+）
+
+每個 entity 可以為每個 content type 設定**投放策略**：
+
+- `inline`：該 type 的內容**完整出現**在 `/.well-known/aidp.json` 的 `content` 陣列中
+- `directory`：該 type 的內容**不出現**在 `aidp.json.content` 中，AI agent 須透過 `/.well-known/aidp/content/directory.json` 取得
+
+預設值：所有 type 為 `inline`（與 v0.3 行為等價）。entity 擁有者可在 dashboard 切換。
+
+`aidp.json` 的 `content_index` 欄位（v0.4+）會宣告：
+
+- `types_inlined`：完整內嵌的 type 清單
+- `types_indexed`：僅透過 directory 取得的 type 清單
+- `total_by_type`：每個 type 的總筆數
+
+AI agent 應根據 `content_index.types_indexed` 判斷是否需要進一步請求 directory endpoint。
+
+## Pinned content（v0.4+）
+
+任一 content 可標記為 `pinned: true`，無論其 type 策略為何，都會出現在 `/.well-known/aidp.json` 的 `content` 陣列中。
+
+用途：
+
+- 在 type 為 `directory` 的情況下強推「精選 / 釘選」內容
+- 即使 type 為 `inline`，pinned 也能讓 AI agent 辨識「發佈方主動推」的內容
+
+排序：pinned 內容永遠排在 `content` 陣列前面（依 `pinned_at` 倒序），其後是 non-pinned（依 `updated_at` 倒序）。
