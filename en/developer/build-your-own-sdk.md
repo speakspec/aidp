@@ -28,6 +28,8 @@ The minimum is the first row. Each additional capability gives the customer rich
 - **Use constant-time HMAC compare** (Python `hmac.compare_digest` / Go `hmac.Equal` / PHP `hash_equals` / Ruby `Rack::Utils.secure_compare`) — never `==`, which leaks via timing.
 - **Rate-limit the webhook endpoint at your CDN/WAF** (e.g. 60 req/min/IP). The SDK caps inbound bodies at 64 KB before HMAC to bound attacker-driven SHA-256 work.
 
+> **Entity ID format (important)**: All `{entityId}` references on this page use the full URN form (e.g. `urn:aidp:entity:speakspec`), not a short slug. The SpeakSpec server does not accept bare slugs — using one returns 404. The Slug field on the dashboard shows this full value. In the snippets below, `your-slug` is just the suffix variable; you compose it as `urn:aidp:entity:your-slug` before putting it in a URL path or env var.
+
 ## 1. Serve `/.well-known/aidp.json`
 
 ### Upstream contract
@@ -103,7 +105,7 @@ from fastapi import FastAPI, Request, Response, HTTPException
 app = FastAPI()
 r = redis.from_url("redis://localhost")
 
-ENTITY_ID = "your-slug"
+ENTITY_ID = "urn:aidp:entity:your-slug"
 API_KEY   = "ssk_xxx"      # from env, NEVER hardcode
 ENDPOINT  = "https://api.speakspec.com"
 TTL_SEC   = 300
@@ -278,7 +280,7 @@ func (e *httpError) Error() string { return "upstream status" }
 // /.well-known/aidp.json.php — rewrite via .htaccess
 declare(strict_types=1);
 
-const ENTITY_ID = 'your-slug';
+const ENTITY_ID = 'urn:aidp:entity:your-slug';
 const API_KEY   = 'ssk_xxx';        // read from env, do NOT hardcode
 const ENDPOINT  = 'https://api.speakspec.com';
 const TTL_SEC   = 300;
@@ -508,7 +510,7 @@ Content-Type: application/json
     "path": "/articles/etf-explainer",
     "user_agent": "Mozilla/5.0 (compatible; GPTBot/1.0; ...)",
     "ts": "2026-05-10T12:00:00Z",
-    "entity_id": "your-slug"
+    "entity_id": "urn:aidp:entity:your-slug"
   }
 ]
 ```
@@ -571,7 +573,7 @@ Tuning principle: longer = lower backend load but slower revocation; shorter = i
 ## 8. Environment variable conventions (recommended — match official SDKs)
 
 ```env
-SPEAKSPEC_ENTITY_ID=your-slug
+SPEAKSPEC_ENTITY_ID=urn:aidp:entity:your-slug
 SPEAKSPEC_API_KEY=ssk_xxxxxxxxxxxx
 SPEAKSPEC_WEBHOOK_SECRET=...
 SPEAKSPEC_ENDPOINT=https://api.speakspec.com
