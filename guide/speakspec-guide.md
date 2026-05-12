@@ -19,6 +19,18 @@ SpeakSpec 提供兩種註冊方式：
 
 Slug 設定時系統會即時檢查可用性。若 slug 為保留字，可提出認領申請。
 
+## 把 SpeakSpec 接到你的網站 {#integrate}
+
+對接 SpeakSpec 的標準方式是用**官方 SDK**：
+
+- [Nuxt 4](/developer/sdk-nuxt) -- `@speakspec/nuxt`
+- [Next 15（App Router）](/developer/sdk-next) -- `@speakspec/next`
+- [Astro 5](/developer/sdk-astro) -- `@speakspec/astro`
+
+SDK 會處理 `/.well-known/aidp.json` proxy、`content_index` 路由、webhook 失效快取、與 AI bot 流量識別 -- 你不需要自己刻。
+
+若你的後端不是上述三個（Django / Rails / Express / Go HTTP server 等），請看 [自己實作 SDK](/developer/build-your-own-sdk) 的指南，照同樣契約實作即可。
+
 ## Entity 管理 {#entity}
 
 Entity 是你在 AIDP 協定中的身份。每個 Entity 代表一個獨立的組織或個人，擁有唯一的 AIDP ID。
@@ -142,6 +154,29 @@ SpeakSpec 支援 11 種內容類型：
 | policy | 政策 |
 | dataset | 資料集 |
 | media | 媒體 |
+
+### 投放策略（inline / directory）
+
+v0.4 起，每個 entity 可逐 content type 設定投放策略，控制該 type 的內容是直接內嵌在 `/.well-known/aidp.json` 還是只透過 directory endpoint 取得：
+
+- **inline**（預設）：該 type 的內容完整出現在 `aidp.json` 的 `content` 陣列中
+- **directory**：該 type 的內容**不**內嵌在 `aidp.json`，僅透過 `/.well-known/aidp/content/directory.json` 列出，AI agent 需另外抓取
+
+在 Entity 編輯頁面的「內容投放策略」區段，每個 content type 可獨立切換。dashboard 會顯示該 type 目前的 content 數量與預估大小；當數量超過 50 筆或預估大小超過 256 KB 時，會建議切換到 directory，避免 `aidp.json` 過度膨脹影響 AI agent 拉取效率。
+
+無論策略為何，AI agent 都能透過 `aidp.json` 頂層的 `content_index` 欄位得知哪些 type 是 inline、哪些是 indexed，以及對應的 directory URL。
+
+### 釘選內容（pin）
+
+v0.4 起，任一筆 content 可在編輯頁面標記為 **pinned**（釘選）：
+
+- Pinned 內容**永遠**會出現在 `aidp.json` 的 `content` 陣列中，無論其 type 的投放策略為何
+- 在 directory endpoint 中，pinned 內容會排序在前，且 envelope 帶有 `pinned: true` 旗標
+- `/.well-known/aidp/content/directory.json` 支援 `?pinned=true` / `?pinned=false` query 參數過濾
+
+**用途：**
+- 當某個 type 設為 directory 策略，但你想強推幾筆「精選」內容直接讓 AI 看到（例如旗艦商品、最新公告）
+- 對 AI agent 標示「這是發佈方主動推的優先項目」
 
 ### 建立內容
 
