@@ -77,6 +77,30 @@ Cache TTL 太長對 SpeakSpec 是好事，但**對你的 SSR server 沒有幫助
 - **ISR / SSG**：對更新不頻繁的內容，改用 `nuxt build --prerender` 或 ISR 而不是 SSR
 - **降級回 client-side fetch**：只在 SPA 模式下才需要 SDK 簽章 inline；如果你不需要 SEO，可以延遲到 client 端
 
+## ⚠️ CDN 預設不會快取 well-known JSON 端點
+
+SDK 已經對 `/.well-known/aidp.json`、`/.well-known/aidp/content/{id}.json`、`/.well-known/aidp/content/` 加上正確的 `Cache-Control` header（例如 `public, max-age=60, stale-while-revalidate=300`），但 **Cloudflare、CloudFront、Vercel Edge 預設都不會自動快取 JSON / HTML response**——只有靜態檔（`.js`, `.css`, `.png` …）才會。
+
+結果：你的 origin server 每個 well-known 請求都被打到。如果你看 response header 出現 `cf-cache-status: DYNAMIC`，就是這個狀況。
+
+**Cloudflare（最常見）解法**：到「Rules → Cache Rules」加：
+
+```
+Rule name:  Cache AIDP well-known
+If incoming requests match:
+  (http.request.uri.path eq "/.well-known/aidp.json")
+  or (starts_with(http.request.uri.path, "/.well-known/aidp/content/"))
+Then:
+  Cache eligibility: Eligible for cache
+  Edge TTL: Use cache-control header (recommended)
+```
+
+驗證生效：`curl -I https://your-site.com/.well-known/aidp.json` 看 `cf-cache-status` 變 `HIT`（首次是 `MISS`，第二次起 `HIT`）。
+
+**Vercel**：response 已含 `Cache-Control: public`，Edge Network 預設會吃，不需額外設定。但若你前面又架一層 Cloudflare，仍要做上面的 Cache Rule。
+
+**省下多少？** 對中流量站，origin fetch 從 PV 數 ≈ 變為 PV / (CDN 命中率)；常見命中率 90%+ → origin compute 砍一個量級。
+
 ## SDK fetch 月硬上限（429 處理）
 
 每個方案有一個 `sdk_fetch_max_monthly` 月硬上限（free=quota；paid=quota×10）。撞到上限後，SpeakSpec 的 well-known endpoints 回 **HTTP 429 + `Retry-After` header**（指向下個月初）。
