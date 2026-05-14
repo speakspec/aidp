@@ -77,6 +77,30 @@ If your server is already saturated (high CPU, slow responses), cache tuning won
 - **ISR / SSG**: for low-update-frequency content, switch to `nuxt build --prerender` or ISR instead of SSR
 - **Client-side fallback**: if SEO isn't critical, defer SDK signing to the client side
 
+## ⚠️ CDNs don't cache well-known JSON endpoints by default
+
+The SDK already sets correct `Cache-Control` headers on `/.well-known/aidp.json`, `/.well-known/aidp/content/{id}.json`, and `/.well-known/aidp/content/` (e.g. `public, max-age=60, stale-while-revalidate=300`). But **Cloudflare, CloudFront, and Vercel Edge do not automatically cache JSON / HTML responses by default** — only static assets (`.js`, `.css`, `.png`, …) get cached out of the box.
+
+The result: every well-known request hits your origin. If your response shows `cf-cache-status: DYNAMIC`, this is what's happening.
+
+**Cloudflare (most common) fix** — go to "Rules → Cache Rules" and add:
+
+```
+Rule name:  Cache AIDP well-known
+If incoming requests match:
+  (http.request.uri.path eq "/.well-known/aidp.json")
+  or (starts_with(http.request.uri.path, "/.well-known/aidp/content/"))
+Then:
+  Cache eligibility: Eligible for cache
+  Edge TTL: Use cache-control header (recommended)
+```
+
+Verify: `curl -I https://your-site.com/.well-known/aidp.json` — `cf-cache-status` should become `HIT` on the second request (first one is `MISS`).
+
+**Vercel**: responses already carry `Cache-Control: public` and the Edge Network honors them — no extra setup. If you front Vercel with Cloudflare, you still need the Cache Rule above.
+
+**How much does it save?** For mid-traffic sites, origin fetches drop from PV to roughly PV / (cache hit ratio); a 90%+ hit ratio cuts origin compute by an order of magnitude.
+
 ## SDK fetch monthly hard cap (429 behavior)
 
 Each plan has a `sdk_fetch_max_monthly` hard cap (free = quota; paid = quota × 10). When exhausted, SpeakSpec's well-known endpoints respond with **HTTP 429 + `Retry-After`** (pointing to the start of the next month).
